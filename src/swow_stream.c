@@ -744,6 +744,9 @@ static int swow_stream_setup_crypto(php_stream *stream,
     return SUCCESS;
 }
 
+// no export yet
+cat_bool_t swow_load_stream_cafile(cat_ssl_context_t *context, struct cat_socket_crypto_options_s *options);
+
 static int swow_stream_enable_crypto(php_stream *stream,
     swow_netstream_data_t *swow_sock, php_netstream_data_t *sock, cat_socket_t *socket,
     php_stream_xport_crypto_param *cparam)
@@ -756,6 +759,7 @@ static int swow_stream_enable_crypto(php_stream *stream,
         zval *val;
 
         cat_socket_crypto_options_init(&options, is_client);
+        options.load_ca = swow_load_stream_cafile;
         if (GET_VER_OPT("verify_peer") && !zend_is_true(val)) {
             options.verify_peer = cat_false;
         }
