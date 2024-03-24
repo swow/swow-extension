@@ -16,7 +16,9 @@ spl_autoload_register(static function (string $class): void {
 
     class TestGetExecutedInfo
     {
-        public static function doNothing(): void {}
+        public static function doNothing(): void
+        {
+        }
     }
 
     echo Coroutine::getCurrent()->getTraceAsString(), "\n\n";

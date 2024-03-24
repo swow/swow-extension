@@ -10,6 +10,8 @@
  * please view the LICENSE file that was distributed with this source code
  */
 
+declare(strict_types=1);
+
 putenv('SKIP_SWOW_REQUIRED_EXTENSION_CHECK=1');
 
 foreach (

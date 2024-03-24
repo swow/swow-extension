@@ -32,7 +32,7 @@ Coroutine::run(static function (): void {
         $pdo->exec('DROP TABLE IF EXISTS test_swow_pgsql_users');
         throw new Exception('interrupt!!!');
         $pdo->commit();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         $pdo->rollBack();
         var_dump('rollback');
     }
@@ -50,7 +50,7 @@ Coroutine::run(static function (): void {
 
         $pdo->exec('DROP TABLE IF EXISTS test_swow_pgsql_users');
         $pdo->commit();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         $pdo->rollBack();
         var_dump($e->getMessage());
     }

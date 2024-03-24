@@ -25,7 +25,7 @@ class DummyClass
     public const CONSTANT1 = 5 + 5;
     public const CONSTANT2 = self::CONSTANT1 + 5;
     public const CONSTANT3 = CONSTANT2 + 5;
-    public const CONSTANT4 = \DummyNamespace2\DummyClass::class . \DummyNamespace1\DummyClass::CONSTANT4;
+    public const CONSTANT4 = DummyNamespace2\DummyClass::class . DummyNamespace1\DummyClass::CONSTANT4;
 }
 
 $anonymous = static function (): void {
@@ -45,15 +45,15 @@ $anonymous = static function (): void {
         DummyClass::CONSTANT2,
         DummyClass::CONSTANT3,
         \DummyNamespace1\CONSTANT1,
-        \DummyNamespace1\DummyClass::class,
-        \DummyNamespace1\DummyClass::CONSTANT2,
-        \DummyNamespace1\DummyClass::CONSTANT3,
-        \DummyNamespace1\DummyClass::CONSTANT4,
+        DummyNamespace1\DummyClass::class,
+        DummyNamespace1\DummyClass::CONSTANT2,
+        DummyNamespace1\DummyClass::CONSTANT3,
+        DummyNamespace1\DummyClass::CONSTANT4,
         \DummyNamespace2\CONSTANT1,
-        \DummyNamespace2\DummyClass::class,
-        \DummyNamespace2\DummyClass::CONSTANT2,
-        \DummyNamespace2\DummyClass::CONSTANT3,
-        \DummyNamespace2\DummyClass::CONSTANT4,
+        DummyNamespace2\DummyClass::class,
+        DummyNamespace2\DummyClass::CONSTANT2,
+        DummyNamespace2\DummyClass::CONSTANT3,
+        DummyNamespace2\DummyClass::CONSTANT4,
     );
 };
 

@@ -26,7 +26,7 @@ Assert::throws(static function (): void {
 
 Assert::throws(static function (): void {
     // cannot be constructed
-    new Swow\Defer();
+    new Defer();
 }, Error::class);
 
 echo "Done\n";

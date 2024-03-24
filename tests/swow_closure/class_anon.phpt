@@ -11,7 +11,9 @@ Need to fix
 require __DIR__ . '/../include/bootstrap.php';
 
 $o = new class() {
-    public static function foo(): void {}
+    public static function foo(): void
+    {
+    }
 };
 $c = Closure::fromCallable([$o, 'foo']);
 $s = serialize($c);

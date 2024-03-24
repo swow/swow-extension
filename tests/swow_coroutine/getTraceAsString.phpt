@@ -8,7 +8,9 @@ require __DIR__ . '/../include/skipif.php';
 <?php
 require __DIR__ . '/../include/bootstrap.php';
 
-class A {}
+class A
+{
+}
 
 $coroutine = Swow\Coroutine::run(static function (): void {
     (static function (): void {

@@ -122,7 +122,7 @@ function build_phar($pharFile = __DIR__ . '/phartest.phar', $test_type = TEST_AU
     if (file_exists($pharFile)) {
         unlink($pharFile);
     }
-    $phar = new \Phar($pharFile);
+    $phar = new Phar($pharFile);
     switch ($test_type) {
         case TEST_AUTOLOAD:
             $phar->addFromString('autoload.php', autoload_php);
@@ -143,7 +143,7 @@ function build_phar($pharFile = __DIR__ . '/phartest.phar', $test_type = TEST_AU
     $phar->addFromString('cororun.php', cororun_php);
     $phar->addFromString('Class1.php', class1_php);
     if (extension_loaded('zlib')) {
-        $phar->compressFiles(\Phar::GZ);
+        $phar->compressFiles(Phar::GZ);
     }
     $phar->stopBuffering();
     $phar->setStub($phar->createDefaultStub('run.php'));

@@ -13,7 +13,7 @@ require __DIR__ . '/../include/bootstrap.php';
 use Swow\Coroutine;
 use Swow\Sync\WaitReference;
 
-$socket = new \Swow\Socket(Swow\Socket::TYPE_TCP);
+$socket = new Swow\Socket(Swow\Socket::TYPE_TCP);
 $server = stream_socket_server('tls://127.0.0.1:0', context: stream_context_create([
     'ssl' => [
         'alpn_protocols' => 'h2,http/1.1',
