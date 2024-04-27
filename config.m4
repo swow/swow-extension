@@ -233,6 +233,8 @@ if test "${PHP_SWOW}" != "no"; then
   SWOW_STD_CFLAGS="${SWOW_STD_CFLAGS} -fvisibility=hidden -std=gnu99"
   SWOW_STD_CFLAGS="${SWOW_STD_CFLAGS} -Wall -Wextra -Wstrict-prototypes"
   SWOW_STD_CFLAGS="${SWOW_STD_CFLAGS} -Wno-unused-parameter"
+  dnl for warning: the argument to '__builtin_assume' has side effects that will be discarded [-Wassume] in PHP
+  SWOW_STD_CFLAGS="${SWOW_STD_CFLAGS} -Wno-assume"
   AC_MSG_CHECKING([for ZTS])
   if test "$PHP_THREAD_SAFETY" != "no"; then
     AC_MSG_RESULT([yes])
