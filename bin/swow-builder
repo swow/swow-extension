@@ -101,8 +101,8 @@ $noInteraction = isset($options['q']) || isset($options['quiet']);
 
 $phpBinary = PHP_BINARY;
 $phpize = 'phpize';
-$phpConfig = $options['php-config'] ?? '';
-if (is_file($phpConfig)) {
+$phpConfig = $options['php-config'] ?? '' ?: '';
+if ($phpConfig && is_file($phpConfig)) {
     log("> {$phpConfig} --php-binary");
     $phpBinary = trim(shell_exec("{$phpConfig} --php-binary"));
     ok("Find {$phpBinary}");
