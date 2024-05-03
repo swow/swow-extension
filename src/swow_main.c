@@ -243,7 +243,7 @@ PHP_MINIT_FUNCTION(swow)
 
 #define SWOW_COMPATIBLE_WITH_DL 1 // TODO: fix it in php-src
 #ifdef SWOW_COMPATIBLE_WITH_DL
-static int swow_clean_module_function(zval *el, void *arg)
+static int swow_clean_module_function_callback(zval *el, void *arg)
 {
     zend_function *fe = (zend_function *) Z_PTR_P(el);
     int module_number = *(int *) arg;
@@ -256,7 +256,7 @@ static int swow_clean_module_function(zval *el, void *arg)
 
 static void swow_clean_module_functions(int module_number)
 {
-    zend_hash_apply_with_argument(CG(function_table), swow_clean_module_function, (void *) &module_number);
+    zend_hash_apply_with_argument(CG(function_table), swow_clean_module_function_callback, (void *) &module_number);
 }
 #endif
 

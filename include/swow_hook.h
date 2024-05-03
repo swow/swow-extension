@@ -24,10 +24,35 @@ extern "C" {
 
 #include "swow.h"
 
+/* functions */
+
 SWOW_API cat_bool_t swow_hook_internal_function_handler(const char *name, size_t name_length, zif_handler handler);
 SWOW_API cat_bool_t swow_hook_internal_function_handler_ex(const char *name, size_t name_length, zif_handler handler, zif_handler *original_handler);
 SWOW_API cat_bool_t swow_hook_internal_function(const zend_function_entry *fe);
 SWOW_API cat_bool_t swow_hook_internal_functions(const zend_function_entry *fes);
+
+
+/* constant */
+
+SWOW_API void swow_register_null_constant_force(const char *name, size_t name_len, int flags, int module_number);
+SWOW_API void swow_register_bool_constant_force(const char *name, size_t name_len, zend_bool bval, int flags, int module_number);
+SWOW_API void swow_register_long_constant_force(const char *name, size_t name_len, zend_long lval, int flags, int module_number);
+SWOW_API void swow_register_double_constant_force(const char *name, size_t name_len, double dval, int flags, int module_number);
+SWOW_API void swow_register_string_constant_force(const char *name, size_t name_len, const char *strval, int flags, int module_number);
+SWOW_API void swow_register_stringl_constant_force(const char *name, size_t name_len, const char *strval, size_t strlen, int flags, int module_number);
+
+#define SWOW_REGISTER_NULL_CONSTANT_FORCE(name, flags)  swow_register_null_constant_force(name, sizeof(name) - 1, flags, module_number)
+#define SWOW_REGISTER_BOOL_CONSTANT_FORCE(name, bval, flags)  swow_register_bool_constant_force(name, sizeof(name) - 1, bval, flags, module_number)
+#define SWOW_REGISTER_LONG_CONSTANT_FORCE(name, lval, flags)  swow_register_long_constant_force(name, sizeof(name) - 1, lval, flags, module_number)
+#define SWOW_REGISTER_DOUBLE_CONSTANT_FORCE(name, dval, flags)  swow_register_double_constant_force(name, sizeof(name) - 1, dval, flags, module_number)
+#define SWOW_REGISTER_STRING_CONSTANT_FORCE(name, str, flags)  swow_register_string_constant_force(name, sizeof(name) - 1, str, flags, module_number)
+#define SWOW_REGISTER_STRINGL_CONSTANT_FORCE(name, str, len, flags)  swow_register_stringl_constant_force(name, sizeof(name) - 1, str, len, flags, module_number)
+
+/* module */
+
+SWOW_API void swow_clean_module_constants(int module_number);
+SWOW_API void swow_clean_module_classes(int module_number);
+SWOW_API void swow_clean_module_functions(int module_number);
 
 #ifdef __cplusplus
 }
