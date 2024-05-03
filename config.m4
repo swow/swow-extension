@@ -312,6 +312,8 @@ if test "${PHP_SWOW}" != "no"; then
     AX_CHECK_COMPILE_FLAG(-fno-optimize-sibling-calls,     SWOW_MAINTAINER_CFLAGS="${SWOW_MAINTAINER_CFLAGS} -fno-optimize-sibling-calls")
     AX_CHECK_COMPILE_FLAG(-fstack-protector,               SWOW_MAINTAINER_CFLAGS="${SWOW_MAINTAINER_CFLAGS} -fstack-protector")
 
+    AX_CHECK_COMPILE_FLAG(-Wtypedef-redefinition,          AC_DEFINE([HAVE_WTYPEDEF_REDEFINITION], 1, [-Wtypedef-redefinition is supported]))
+
     if test "${PHP_SWOW_GCOV}" = "yes"; then
       AX_CHECK_COMPILE_FLAG([-fprofile-arcs -ftest-coverage], [
         CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"
@@ -787,7 +789,9 @@ EOF
         PHP_EVAL_LIBLINE($CURL_LIBS, SWOW_SHARED_LIBADD)
         SWOW_CAT_INCLUDES="$SWOW_CAT_INCLUDES $CURL_INCL"
         SWOW_ADD_SOURCES(deps/libcat/src, cat_curl.c, SWOW_CAT_INCLUDES, SWOW_CAT_CFLAGS)
-        SWOW_ADD_SOURCES(src, swow_curl.c, SWOW_INCLUDES, SWOW_CFLAGS)
+        SWOW_ADD_SOURCES(src,
+            swow_curl.c swow_curl_interface.c swow_curl_multi.c \
+            swow_curl_file.c swow_curl_share.c, SWOW_INCLUDES, SWOW_CFLAGS)
       ],[
         AC_MSG_WARN([Swow cURL support not enabled: libcurl not found])
       ])

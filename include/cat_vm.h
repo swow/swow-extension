@@ -21,7 +21,9 @@
 #pragma GCC diagnostic ignored "-Wstrict-prototypes"
 /* zend_op in zend_compile.h and zend_frameless_function.h
  * @see @see: https://github.com/php/php-src/pull/13347 */
-#pragma GCC diagnostic ignored "-Wtypedef-redefinition"
+# ifdef HAVE_WTYPEDEF_REDEFINITION
+#  pragma GCC diagnostic ignored "-Wtypedef-redefinition"
+# endif
 #endif
 #include "zend_API.h"
 #if !defined(__cplusplus) && !defined(_MSC_VER)

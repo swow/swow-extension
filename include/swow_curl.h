@@ -24,7 +24,15 @@ extern "C" {
 
 #include "swow.h"
 
+#include "cat_curl.h"
+
 #ifdef CAT_HAVE_CURL
+SWOW_API extern zend_class_entry *swow_curl_ce;
+SWOW_API extern zend_class_entry *swow_curl_share_ce;
+SWOW_API extern zend_class_entry *swow_curl_multi_ce;
+SWOW_API extern zend_class_entry *swow_curl_CURLFile_class;
+SWOW_API extern zend_class_entry *swow_curl_CURLStringFile_class;
+
 zend_result swow_curl_module_init(INIT_FUNC_ARGS);
 zend_result swow_curl_module_shutdown(INIT_FUNC_ARGS);
 zend_result swow_curl_runtime_init(INIT_FUNC_ARGS);

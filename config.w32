@@ -307,7 +307,7 @@ if (PHP_SWOW != 'no') (function(){
     }
     */
     if(use_curl){
-        SWOW_SOURCE_FILENAMES.push('swow_curl.c');
+        SWOW_SOURCE_FILENAMES.push('swow_curl.c', 'swow_curl_interface.c', 'swow_curl_multi.c', 'swow_curl_file.c', 'swow_curl_share.c');
     }
     if(use_pgsql){
         SWOW_SOURCE_FILENAMES.push('swow_pgsql_driver.c', 'swow_pgsql_statement.c', 'swow_pgsql_version.c');
