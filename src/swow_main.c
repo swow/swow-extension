@@ -547,7 +547,7 @@ PHP_MINFO_FUNCTION(swow)
 #endif
     php_info_print_table_end();
 
-	DISPLAY_INI_ENTRIES();
+    DISPLAY_INI_ENTRIES();
 }
 /* }}} */
 

@@ -102,7 +102,7 @@ typedef struct swow_coroutine_executor_s {
 #endif
 #ifdef ZEND_CHECK_STACK_LIMIT
     void *stack_base;
-	void *stack_limit;
+    void *stack_limit;
 #endif
 } swow_coroutine_executor_t;
 

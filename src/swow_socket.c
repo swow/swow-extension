@@ -128,7 +128,7 @@ static PHP_METHOD(Swow_Socket, open)
     }
 
     SWOW_THROW_ON_ERROR_START_EX(swow_socket_exception_ce) {
-	    php_stream_from_zval_no_verify(stream, z_socket);
+        php_stream_from_zval_no_verify(stream, z_socket);
     } SWOW_THROW_ON_ERROR_END();
     if (stream == NULL) {
         RETURN_THROWS();

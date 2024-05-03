@@ -29,6 +29,5 @@ CAT_GLOBALS_CTOR_DECLARE_SZ(swow_thread)
 
 zend_result swow_thread_module_init(INIT_FUNC_ARGS)
 {
-    
     return SUCCESS;
 }
