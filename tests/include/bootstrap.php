@@ -22,16 +22,15 @@ ini_set('memory_limit', '64M');
 
 error_reporting(E_ALL);
 
-# constants
-
-/* ============== Env =============== */
+# env constants
 define('USE_VALGRIND', getenv('USE_ZEND_ALLOC') === '0');
 define('TEST_POSTGRES_HOST', getenv('POSTGRES_HOST') ?: '127.0.0.1');
 define('TEST_POSTGRES_PORT', getenv('POSTGRES_PORT') ?: 5432);
 define('TEST_POSTGRES_USER', getenv('POSTGRES_USER') ?: 'postgres');
 define('TEST_POSTGRES_PASSWORD', getenv('POSTGRES_PASSWORD') ?: 'postgres');
 define('TEST_POSTGRES_DBNAME', getenv('POSTGRES_DBNAME') ?: 'postgres');
-/* ============== Pressure ============== */
+
+# pressure constants
 define('TEST_PRESSURE_DEBUG', 0);
 define('TEST_PRESSURE_MIN', 1);
 define('TEST_PRESSURE_LOW', 2);
@@ -43,7 +42,8 @@ define(
         (USE_VALGRIND ? TEST_PRESSURE_LOW :
             ((0) ? TEST_PRESSURE_MID : TEST_PRESSURE_NORMAL))
 );
-/* ============== Count ============== */
+
+# count constants
 define('TEST_MAX_CONCURRENCY', [1, 8, 16, 32, 64][TEST_PRESSURE_LEVEL]);
 define('TEST_MAX_CONCURRENCY_MID', [1, 4, 8, 16, 32][TEST_PRESSURE_LEVEL]);
 define('TEST_MAX_CONCURRENCY_LOW', [1, 2, 4, 8, 16][TEST_PRESSURE_LEVEL]);
@@ -55,6 +55,12 @@ define('TEST_MAX_LENGTH', [64, 64, 256, 512, 1024][TEST_PRESSURE_LEVEL]);
 define('TEST_MAX_LENGTH_LOW', [8, 8, 16, 32, 64][TEST_PRESSURE_LEVEL]);
 define('TEST_MAX_LOOPS', (int) ([0.001, 1, 10, 100, 1000][TEST_PRESSURE_LEVEL] * 100));
 define('TEST_MAX_PROCESSES', [1, 1, 2, 4, 8][TEST_PRESSURE_LEVEL]);
+
+# website constants
+define('TEST_WEBSITE1_URL', getenv('GITHUB_ACTIONS') ? 'https://github.com/' : 'https://www.qq.com/');
+define('TEST_WEBSITE1_KEYWORD', getenv('GITHUB_ACTIONS') ? 'GitHub' : 'tencent');
+define('TEST_WEBSITE2_URL', getenv('GITHUB_ACTIONS') ? 'https://www.bing.com/' : 'https://www.baidu.com/');
+define('TEST_WEBSITE2_KEYWORD', getenv('GITHUB_ACTIONS') ? 'Bing' : 'baidu');
 
 # ini
 if (extension_loaded(Swow::class)) {
