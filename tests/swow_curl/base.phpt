@@ -3,7 +3,6 @@ swow_curl: base
 --SKIPIF--
 <?php
 require __DIR__ . '/../include/skipif.php';
-skip_if_extension_not_exist('curl');
 skip_if(PHP_SAPI !== 'cli', 'only for cli');
 skip_if(!getenv('SWOW_HAVE_CURL') && !Swow\Extension::isBuiltWith('curl'), 'extension must be built with libcurl');
 ?>
