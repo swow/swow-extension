@@ -52,6 +52,7 @@ SWOW_API zend_op_array *swow_compile_string_ex(zend_string *source_string, const
     return zend_compile_string(source_string, filename, position);
 #endif
 }
+
 /* }}} */
 
 /* class */

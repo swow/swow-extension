@@ -76,6 +76,66 @@ SWOW_API zend_op_array *swow_compile_string_ex(zend_string *source_string, const
 #endif
 /* }}} */
 
+/* PHP 8.3 compatibility {{{*/
+#ifndef ZEND_FCC_INITIALIZED
+#define ZEND_FCC_INITIALIZED(fcc) ((fcc).function_handler != NULL)
+
+static zend_always_inline void zend_fcc_addref(zend_fcall_info_cache *fcc)
+{
+    ZEND_ASSERT(ZEND_FCC_INITIALIZED(*fcc) && "FCC Not initialized, possibly refetch trampoline freed by ZPP?");
+    /* If the cached trampoline is set, free it */
+    if (UNEXPECTED(fcc->function_handler == &EG(trampoline))) {
+        zend_function *copy = (zend_function*)emalloc(sizeof(zend_function));
+
+        memcpy(copy, fcc->function_handler, sizeof(zend_function));
+        fcc->function_handler->common.function_name = NULL;
+        fcc->function_handler = copy;
+    }
+    if (fcc->object) {
+        GC_ADDREF(fcc->object);
+    }
+}
+
+static zend_always_inline void zend_fcc_dup(/* restrict */ zend_fcall_info_cache *dest, const zend_fcall_info_cache *src)
+{
+    memcpy(dest, src, sizeof(zend_fcall_info_cache));
+    zend_fcc_addref(dest);
+}
+
+static zend_always_inline void zend_fcc_dtor(zend_fcall_info_cache *fcc)
+{
+    ZEND_ASSERT(fcc->function_handler);
+    if (fcc->object) {
+        OBJ_RELEASE(fcc->object);
+    }
+    /* Need to free potential trampoline (__call/__callStatic) copied function handler before releasing the closure */
+    zend_release_fcall_info_cache(fcc);
+    memcpy(fcc, &empty_fcall_info_cache, sizeof(zend_fcall_info_cache));
+}
+
+static zend_always_inline void zend_get_gc_buffer_add_fcc(zend_get_gc_buffer *gc_buffer, zend_fcall_info_cache *fcc)
+{
+    ZEND_ASSERT(ZEND_FCC_INITIALIZED(*fcc));
+    if (fcc->object) {
+        zend_get_gc_buffer_add_obj(gc_buffer, fcc->object);
+    }
+}
+
+static zend_always_inline void zend_call_known_fcc(
+    zend_fcall_info_cache *fcc, zval *retval_ptr, uint32_t param_count, zval *params, HashTable *named_params)
+{
+    zend_function *func = fcc->function_handler;
+    /* Need to copy trampolines as they get released after they are called */
+    if (UNEXPECTED(func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE)) {
+        func = (zend_function*) emalloc(sizeof(zend_function));
+        memcpy(func, fcc->function_handler, sizeof(zend_function));
+        zend_string_addref(func->op_array.function_name);
+    }
+    zend_call_known_function(func, fcc->object, fcc->called_scope, retval_ptr, param_count, params, named_params);
+}
+#endif
+/* }}} */
+
 /* ZTS */
 
 #ifdef ZTS
@@ -138,6 +198,15 @@ SWOW_API zend_op_array *swow_compile_string_ex(zend_string *source_string, const
 /* typedef */
 
 typedef void (*swow_interrupt_function_t)(zend_execute_data *execute_data);
+
+/* str */
+
+#if PHP_VERSION_ID < 80200
+static zend_always_inline bool zend_char_has_nul_byte(const char *s, size_t known_length)
+{
+    return known_length != strlen(s);
+}
+#endif
 
 /* string */
 
@@ -372,6 +441,14 @@ static zend_always_inline bool swow_parse_arg_stringable(zval *arg, zend_string 
 #undef _ARG_POS
 
 /* return_value */
+
+#ifndef RETVAL_COPY_DEREF
+#define RETVAL_COPY_DEREF(zv) ZVAL_COPY_DEREF(return_value, zv)
+#endif
+
+#ifndef RETURN_COPY_DEREF
+#define RETURN_COPY_DEREF(zv) do { RETVAL_COPY_DEREF(zv); return; } while (0)
+#endif
 
 #define RETVAL_STATIC() do { \
     RETVAL_OBJ(swow_object_create(zend_get_executed_scope())); \
