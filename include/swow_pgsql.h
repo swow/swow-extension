@@ -20,9 +20,13 @@
 
 #ifndef SWOW_PGSQL_H
 #define SWOW_PGSQL_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "swow.h"
 
+#ifdef CAT_HAVE_PQ
 // at swow_pgsql_version.c
 extern int swow_building_libpq_version;
 
@@ -32,5 +36,9 @@ extern cat_bool_t swow_pgsql_hooked;
 
 zend_result swow_pgsql_module_init(INIT_FUNC_ARGS);
 zend_result swow_pgsql_module_shutdown(INIT_FUNC_ARGS);
+#endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif // SWOW_PGSQL_H

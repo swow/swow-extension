@@ -40,9 +40,7 @@
 #include "swow_proc_open.h"
 #include "swow_curl.h"
 
-#ifdef CAT_HAVE_PQ
-# include "swow_pgsql.h"
-#endif
+#include "swow_pgsql.h"
 
 #include "cat_api.h"
 
