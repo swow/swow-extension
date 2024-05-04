@@ -77,6 +77,18 @@ SWOW_API zend_op_array *swow_compile_string_ex(zend_string *source_string, const
 /* }}} */
 
 /* PHP 8.3 compatibility {{{*/
+#if PHP_VERSION_ID < 80300
+# ifdef PHP_WIN32 // we only need this on Windows temporarily for curl_interface.c
+static zend_always_inline bool zend_string_starts_with_cstr_ci(const zend_string *str, const char *prefix, size_t prefix_length)
+{
+    return ZSTR_LEN(str) >= prefix_length && !strncasecmp(ZSTR_VAL(str), prefix, prefix_length);
+}
+
+#define zend_string_starts_with_literal_ci(str, prefix) \
+    zend_string_starts_with_cstr_ci(str, prefix, strlen(prefix))
+# endif
+#endif
+
 #ifndef ZEND_FCC_INITIALIZED
 #define ZEND_FCC_INITIALIZED(fcc) ((fcc).function_handler != NULL)
 
