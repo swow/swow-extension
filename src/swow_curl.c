@@ -26,6 +26,10 @@ zend_result swow_curl_interface_module_init(INIT_FUNC_ARGS);
 
 zend_result swow_curl_module_init(INIT_FUNC_ARGS)
 {
+    if (!cat_curl_module_init()) {
+        return FAILURE;
+    }
+
     zend_module_entry *php_curl_module = zend_hash_str_find_ptr(&module_registry, ZEND_STRL("curl"));
     zend_class_entry *php_curl_ce;
     php_curl_ce = (zend_class_entry *) zend_hash_str_find_ptr(CG(class_table), ZEND_STRL("curlhandle"));
