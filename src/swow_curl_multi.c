@@ -27,7 +27,7 @@
 #include "config.h"
 #endif
 
-#include "php.h"
+#include "swow.h"
 #include "Zend/zend_smart_str.h"
 
 #include "swow_curl_private.h"
