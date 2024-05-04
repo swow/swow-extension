@@ -147,17 +147,6 @@ SWOW_API void swow_clean_module_constants(int module_number)
     zend_hash_apply_with_argument(EG(zend_constants), swow_clean_module_constant_callback, (void *) &module_number);
 }
 
-static int swow_clean_module_class_callback(zval *z_ce, void *argument)
-{
-    zend_class_entry *ce = (zend_class_entry *) Z_PTR_P(z_ce);
-    int module_number = *(int *) argument;
-    if (ce->type == ZEND_INTERNAL_CLASS && ce->info.internal.module->module_number == module_number) {
-        return ZEND_HASH_APPLY_REMOVE;
-    } else {
-        return ZEND_HASH_APPLY_KEEP;
-    }
-}
-
 SWOW_API void swow_clean_module_classes(int module_number)
 {
     zend_array *class_name_map = zend_new_array(0);
