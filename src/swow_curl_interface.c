@@ -214,7 +214,7 @@ void _swow_curl_verify_handlers(php_curl *ch, bool reporterror) /* {{{ */
 /* }}} */
 
 /* {{{ curl_module_entry */
-#if 0
+#ifndef HAVE_LIBCAT
 zend_module_entry curl_module_entry = {
     STANDARD_MODULE_HEADER,
     "curl",
@@ -230,7 +230,7 @@ zend_module_entry curl_module_entry = {
 #endif
 /* }}} */
 
-#if 0
+#ifndef HAVE_LIBCAT
 #ifdef COMPILE_DL_CURL
 ZEND_GET_MODULE (curl)
 #endif
@@ -250,11 +250,13 @@ static zend_object *curl_clone_obj(zend_object *object);
 php_curl *swow_swow_init_curl_handle_into_zval(zval *curl);
 static inline zend_result build_mime_structure_from_hash(php_curl *ch, zval *zpostfields);
 
+#ifndef HAVE_LIBCAT
 /* {{{ PHP_INI_BEGIN */
 PHP_INI_BEGIN()
     PHP_INI_ENTRY("curl.cainfo", "", PHP_INI_SYSTEM, NULL)
 PHP_INI_END()
 /* }}} */
+#endif
 
 /* {{{ PHP_MINFO_FUNCTION */
 void swow_curl_module_info(zend_module_entry *zend_module)
@@ -384,7 +386,9 @@ void swow_curl_module_info(zend_module_entry *zend_module)
 /* {{{ PHP_MINIT_FUNCTION */
 zend_result swow_curl_interface_module_init(INIT_FUNC_ARGS)
 {
+#ifndef HAVE_LIBCAT
     REGISTER_INI_ENTRIES();
+#endif
 
     register_curl_symbols(module_number);
 
@@ -406,7 +410,7 @@ zend_result swow_curl_interface_module_init(INIT_FUNC_ARGS)
     }
 #endif
 
-#if 0
+#ifndef HAVE_LIBCAT
     if (curl_global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK) {
         return FAILURE;
     }
@@ -559,7 +563,7 @@ zend_result swow_curl_cast_object(zend_object *obj, zval *result, int type)
     return zend_std_cast_object_tostring(obj, result, type);
 }
 
-#if 0
+#ifndef HAVE_LIBCAT
 /* {{{ PHP_MSHUTDOWN_FUNCTION */
 PHP_MSHUTDOWN_FUNCTION(curl)
 {
