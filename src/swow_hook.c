@@ -160,7 +160,23 @@ static int swow_clean_module_class_callback(zval *z_ce, void *argument)
 
 SWOW_API void swow_clean_module_classes(int module_number)
 {
-    zend_hash_apply_with_argument(CG(class_table), swow_clean_module_class_callback, (void *) &module_number);
+    zend_array *class_name_map = zend_new_array(0);
+    zend_class_entry *ce;
+    ZEND_HASH_FOREACH_PTR(CG(class_table), ce) {
+        if (ce->type == ZEND_INTERNAL_CLASS && ce->info.internal.module->module_number == module_number) {
+            zend_hash_add_empty_element(class_name_map, ce->name);
+        }
+    } ZEND_HASH_FOREACH_END();
+    zend_string *class_name;
+    ZEND_HASH_FOREACH_STR_KEY(class_name_map, class_name) {
+        /* if we use the way like clean_module_functions,
+         * it will lead to memory leak (just run PhpUnit),
+         * so we have to use zend_disable_class and zend_hash_del instead.
+         * but we do not know why. All we can do is believe that the API is stable. */
+        zend_disable_class(ZSTR_VAL(class_name), ZSTR_LEN(class_name));
+        zend_hash_del(CG(class_table), class_name);
+    } ZEND_HASH_FOREACH_END();
+    zend_array_destroy(class_name_map);
 }
 
 static int swow_clean_module_function_callback(zval *z_fe, void *argument)
