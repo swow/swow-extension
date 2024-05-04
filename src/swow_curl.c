@@ -48,8 +48,18 @@ zend_result swow_curl_module_init(INIT_FUNC_ARGS)
         php_curl_module->info_func = swow_curl_module_info;
     }
 
-    if (swow_curl_interface_module_init(INIT_FUNC_ARGS_PASSTHRU) != SUCCESS) {
-        return FAILURE;
+    if (php_curl_module != NULL && php_curl_module->type != MODULE_TEMPORARY) {
+        zend_module_entry *previous_current_module = EG(current_module);
+        EG(current_module) = php_curl_module;
+        if (swow_curl_interface_module_init(php_curl_module->type, php_curl_module->module_number) != SUCCESS) {
+            return FAILURE;
+        }
+        EG(current_module) = previous_current_module;
+        return SUCCESS;
+    } else {
+        if (swow_curl_interface_module_init(INIT_FUNC_ARGS_PASSTHRU) != SUCCESS) {
+            return FAILURE;
+        }
     }
 
     return SUCCESS;
