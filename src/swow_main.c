@@ -38,6 +38,7 @@
 #include "swow_http.h"
 #include "swow_websocket.h"
 #include "swow_proc_open.h"
+
 #include "swow_curl.h"
 
 #include "swow_pgsql.h"
@@ -119,6 +120,9 @@ STD_ZEND_INI_BOOLEAN("swow.enable", "On", PHP_INI_ALL, swow_OnUpdateBool_only_wh
 STD_PHP_INI_ENTRY("swow.async_threads", "0", PHP_INI_ALL, swow_OnUpdateLong_only_when_startup, ini.async_threads, zend_swow_globals, swow_globals)
 STD_ZEND_INI_BOOLEAN("swow.async_file", "On", PHP_INI_ALL, swow_OnUpdateBool_only_when_startup, ini.async_file, zend_swow_globals, swow_globals)
 STD_ZEND_INI_BOOLEAN("swow.async_tty", "On", PHP_INI_ALL, swow_OnUpdateBool_only_when_startup, ini.async_tty, zend_swow_globals, swow_globals)
+#ifdef CAT_HAVE_CURL
+PHP_INI_ENTRY("curl.cainfo", "", PHP_INI_SYSTEM, NULL)
+#endif
 PHP_INI_END()
 
 static void swow_globals_ctor(zend_swow_globals *g)
@@ -135,7 +139,15 @@ static void swow_globals_ctor(zend_swow_globals *g)
 PHP_MINIT_FUNCTION(swow)
 {
     ZEND_INIT_MODULE_GLOBALS(swow, swow_globals_ctor, NULL);
+
+#ifdef CAT_HAVE_CURL
+    zend_module_entry *php_curl_module = zend_hash_str_find_ptr(&module_registry, ZEND_STRL("curl"));
+    if (php_curl_module != NULL) {
+        zend_unregister_ini_entries(php_curl_module->module_number);
+    }
+#endif
     REGISTER_INI_ENTRIES();
+
     if (!SWOW_G(ini.enable)) {
         return SUCCESS;
     }
