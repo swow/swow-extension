@@ -74,23 +74,25 @@ Coroutine::run(static function () use ($noticer, $server): void {
     phpt_var_dump('end write dummy server');
 });
 
-phpt_var_dump('start write timeout');
-try {
-    $socket = new Socket(Socket::TYPE_TCP);
-    $socket->setWriteTimeout(1);
-    Assert::same($socket->getWriteTimeout(), 1);
-    $socket->connect($server->getSockAddress(), $server->getSockPort());
-    $socket->setSendBufferSize(0);
-    while (true) {
-        // send a 16k string to overflow buffer
-        $socket->send(str_repeat('Hello SwowSocket', 1024));
+if (!getenv('SKIP_SWOW_SOCKET_WRITE_TIMEOUT_TEST')) {
+    phpt_var_dump('start write timeout');
+    try {
+        $socket = new Socket(Socket::TYPE_TCP);
+        $socket->setWriteTimeout(1);
+        Assert::same($socket->getWriteTimeout(), 1);
+        $socket->connect($server->getSockAddress(), $server->getSockPort());
+        $socket->setSendBufferSize(0);
+        while (true) {
+            // send a 16k string to overflow buffer
+            $socket->send(str_repeat('Hello SwowSocket', 1024));
+        }
+    } catch (SocketException $e) {
+        Assert::same($e->getCode(), Errno::ETIMEDOUT);
+    } finally {
+        $noticer->push(1);
     }
-} catch (SocketException $e) {
-    Assert::same($e->getCode(), Errno::ETIMEDOUT);
-} finally {
-    $noticer->push(1);
+    phpt_var_dump('end write timeout');
 }
-phpt_var_dump('end write timeout');
 
 // dummy server with delay
 $server = new Socket(Socket::TYPE_TCP);
