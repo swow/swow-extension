@@ -135,7 +135,7 @@ static int swow_clean_module_constant_callback(zval *z_c, void *argument)
 {
     zend_constant *c = (zend_constant *) Z_PTR_P(z_c);
     int module_number = *(int *) argument;
-    if (ZEND_CONSTANT_MODULE_NUMBER(c) == module_number) {
+    if (((int)ZEND_CONSTANT_MODULE_NUMBER(c)) == module_number) {
         return ZEND_HASH_APPLY_REMOVE;
     } else {
         return ZEND_HASH_APPLY_KEEP;
