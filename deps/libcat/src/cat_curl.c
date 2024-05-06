@@ -351,7 +351,12 @@ static CURLMcode cat_curl_multi_wait_impl(
     int socket_poll_event_count = 0;
 
     if (context->waiter != NULL) {
+        // since 7.59.0
+#ifdef CURLM_RECURSIVE_API_CALL
         return CURLM_RECURSIVE_API_CALL;
+#else
+        return CURLM_INTERNAL_ERROR;
+#endif
     }
     while (1) {
         cat_ret_t ret;
