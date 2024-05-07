@@ -195,26 +195,25 @@ static int cat_curl_multi_socket_function(
     CAT_LOG_DEBUG_V2(CURL, "libcurl::curl_multi_socket_function(multi: %p, sockfd: %d, action=%s)",
         multi, sockfd, cat_curl_action_name(action));
 
-    if (action == CURL_POLL_IN || action == CURL_POLL_OUT) {
-        if (socket_context == NULL) {
-            socket_context = (cat_curl_multi_socket_context_t *) cat_malloc(sizeof(*socket_context));
-#if CAT_ALLOC_HANDLE_ERRORS
-            if (unlikely(fd == NULL)) {
-                return CURLM_OUT_OF_MEMORY;
-            }
-#endif
-            socket_context->context = context;
-            socket_context->sockfd = sockfd;
-            (void) uv_poll_init_socket(&CAT_EVENT_G(loop), &socket_context->poll, sockfd);
-            socket_context->poll.data = socket_context;
-            curl_multi_assign(multi, sockfd, socket_context);
-        }
-    }
-
     switch (action) {
         case CURL_POLL_IN:
         case CURL_POLL_OUT:
         case CURL_POLL_INOUT: {
+            if (action != CURL_POLL_REMOVE) {
+                if (socket_context == NULL) {
+                    socket_context = (cat_curl_multi_socket_context_t *) cat_malloc(sizeof(*socket_context));
+#if CAT_ALLOC_HANDLE_ERRORS
+                    if (unlikely(fd == NULL)) {
+                        return CURLM_OUT_OF_MEMORY;
+                    }
+#endif
+                    socket_context->context = context;
+                    socket_context->sockfd = sockfd;
+                    (void) uv_poll_init_socket(&CAT_EVENT_G(loop), &socket_context->poll, sockfd);
+                    socket_context->poll.data = socket_context;
+                    curl_multi_assign(multi, sockfd, socket_context);
+                }
+            }
             int uv_events = 0;
             if(action != CURL_POLL_OUT) {
                 uv_events |= UV_READABLE;
@@ -344,12 +343,19 @@ static CURLMcode cat_curl_multi_wait_impl(
     CAT_ASSERT(running_handles != NULL);
     cat_curl_multi_context_t *context = cat_curl_multi_get_context(multi);
     CAT_ASSERT(context != NULL);
-    CURLMcode mcode = CURLM_OK;
+    CURLMcode mcode;
     // :) we just use at least 1ms to avoid CPU 100%
     cat_timeout_t timeout = timeout_ms >= 0 ? CAT_MAX(1, timeout_ms) : timeout_ms;
     int socket_event_count = 0;
     int socket_poll_event_count = 0;
 
+    mcode = cat_curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, running_handles);
+    if (unlikely(mcode != CURLM_OK)) {
+        return mcode;
+    }
+    if (*running_handles == 0) {
+        return CURLM_OK;
+    }
     if (context->waiter != NULL) {
         // since 7.59.0
 #ifdef CURLM_RECURSIVE_API_CALL
@@ -406,14 +412,6 @@ static CURLMcode cat_curl_multi_wait_impl(
 
 static cat_always_inline CURLMcode cat_curl_multi_perform_impl(CURLM *multi, int *running_handles)
 {
-    CAT_ASSERT(running_handles != NULL);
-    CURLMcode mcode;
-
-    mcode = cat_curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, running_handles);
-    if (unlikely(mcode != CURLM_OK)) {
-        return mcode;
-    }
-
     return cat_curl_multi_wait_impl(multi, 0, NULL, running_handles);
 }
 
