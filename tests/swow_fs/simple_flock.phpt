@@ -11,7 +11,7 @@ $h = fopen($file, 'w');
 if (!$h) {
     exit('fopen failed');
 }
-echo ("try lock with LOCK_EX | LOCK_NB\n");
+echo "try lock with LOCK_EX | LOCK_NB\n";
 var_dump(flock($h, LOCK_EX | LOCK_NB));
 fclose($h);
 unlink($file);
