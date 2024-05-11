@@ -739,8 +739,8 @@ static inline int swow_virtual_lchown(const char *path, uid_t owner, gid_t group
 #else
 static inline int swow_fs_flock(int fd, int op)
 {
-    int op_type = op | (LOCK_SH & LOCK_EX & LOCK_UN);
-    int op_nb = op | LOCK_NB;
+    int op_type = op & (LOCK_SH | LOCK_EX | LOCK_UN);
+    int op_nb = op & LOCK_NB;
     int _op = op_nb != 0 ? CAT_FS_FLOCK_FLAG_NONBLOCK : 0;
     switch (op_type) {
         case LOCK_SH:
