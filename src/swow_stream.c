@@ -945,7 +945,7 @@ static int swow_stream_set_option(php_stream *stream, int option, int value, voi
                         socket, xparam->inputs.buf, xparam->inputs.buflen,
                         xparam->inputs.addr, xparam->inputs.addrlen
                     );
-                    xparam->outputs.returncode = ret ? (int)(xparam->inputs.buflen) : -1;
+                    xparam->outputs.returncode = ret ? (int) (xparam->inputs.buflen) : -1;
                     if (xparam->outputs.returncode == -1) {
                         php_error_docref(NULL, E_WARNING, "%s\n", cat_get_last_error_message());
                     }

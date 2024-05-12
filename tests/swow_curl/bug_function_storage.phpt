@@ -14,7 +14,7 @@ skip_if(!str_contains(@file_get_contents(TEST_WEBSITE2_URL), TEST_WEBSITE2_KEYWO
 require_once __DIR__ . '/../include/bootstrap.php';
 
 $headerLines = [];
-$headerFunction = function (CurlHandle $curl, string $headerLine) use (&$headerLines): int {
+$headerFunction = static function (CurlHandle $curl, string $headerLine) use (&$headerLines): int {
     $parts = explode(':', $headerLine, 2);
     if (count($parts) === 2) {
         $headerLines[strtolower($parts[0])] = trim($parts[1]);
