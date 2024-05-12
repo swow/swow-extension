@@ -24,14 +24,16 @@
 void swow_curl_module_info(zend_module_entry *zend_module);
 zend_result swow_curl_interface_module_init(INIT_FUNC_ARGS);
 
+static zend_module_entry *php_curl_module;
+static zend_class_entry *php_curl_ce;
+
 zend_result swow_curl_module_init(INIT_FUNC_ARGS)
 {
     if (!cat_curl_module_init()) {
         return FAILURE;
     }
 
-    zend_module_entry *php_curl_module = zend_hash_str_find_ptr(&module_registry, ZEND_STRL("curl"));
-    zend_class_entry *php_curl_ce;
+    php_curl_module = zend_hash_str_find_ptr(&module_registry, ZEND_STRL("curl"));
     php_curl_ce = (zend_class_entry *) zend_hash_str_find_ptr(CG(class_table), ZEND_STRL("curlhandle"));
     if (php_curl_ce == NULL) {
         if (php_curl_module != NULL) {
@@ -42,9 +44,9 @@ zend_result swow_curl_module_init(INIT_FUNC_ARGS)
                 return FAILURE;
         }
     } else {
-        swow_clean_module_constants(php_curl_module->module_number);
-        swow_clean_module_classes(php_curl_module->module_number);
-        swow_clean_module_functions(php_curl_module->module_number);
+        swow_clean_module_constants(php_curl_module);
+        swow_clean_module_classes(php_curl_module);
+        swow_clean_module_functions(php_curl_module);
         php_curl_module->info_func = swow_curl_module_info;
     }
 

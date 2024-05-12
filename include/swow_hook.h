@@ -50,9 +50,9 @@ SWOW_API void swow_register_stringl_constant_force(const char *name, size_t name
 
 /* module */
 
-SWOW_API void swow_clean_module_constants(int module_number);
-SWOW_API void swow_clean_module_classes(int module_number);
-SWOW_API void swow_clean_module_functions(int module_number);
+SWOW_API void swow_clean_module_constants(zend_module_entry *module);
+SWOW_API void swow_clean_module_classes(zend_module_entry *module);
+SWOW_API void swow_clean_module_functions(zend_module_entry *module);
 
 #ifdef __cplusplus
 }

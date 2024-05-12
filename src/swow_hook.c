@@ -134,25 +134,29 @@ SWOW_API void swow_register_stringl_constant_force(const char *name, size_t name
 static int swow_clean_module_constant_callback(zval *z_c, void *argument)
 {
     zend_constant *c = (zend_constant *) Z_PTR_P(z_c);
-    int module_number = *(int *) argument;
-    if (((int)ZEND_CONSTANT_MODULE_NUMBER(c)) == module_number) {
+    zend_module_entry *module = (zend_module_entry *) argument;
+    if (((int)ZEND_CONSTANT_MODULE_NUMBER(c)) == module->module_number) {
         return ZEND_HASH_APPLY_REMOVE;
     } else {
         return ZEND_HASH_APPLY_KEEP;
     }
 }
 
-SWOW_API void swow_clean_module_constants(int module_number)
+SWOW_API void swow_clean_module_constants(zend_module_entry *module)
 {
-    zend_hash_apply_with_argument(EG(zend_constants), swow_clean_module_constant_callback, (void *) &module_number);
+    zend_hash_apply_with_argument(EG(zend_constants), swow_clean_module_constant_callback, module);
+    /* Rehash the constant table after deleting constants. This ensures that all internal
+     * constants are contiguous, which means we don't need to perform full table cleanup
+     * on shutdown. */
+	zend_hash_rehash(EG(zend_constants));
 }
 
-SWOW_API void swow_clean_module_classes(int module_number)
+SWOW_API void swow_clean_module_classes(zend_module_entry *module)
 {
     zend_array *class_name_map = zend_new_array(0);
     zend_class_entry *ce;
     ZEND_HASH_FOREACH_PTR(CG(class_table), ce) {
-        if (ce->type == ZEND_INTERNAL_CLASS && ce->info.internal.module->module_number == module_number) {
+        if (ce->type == ZEND_INTERNAL_CLASS && ce->info.internal.module->module_number == module->module_number) {
             zend_hash_add_empty_element(class_name_map, ce->name);
         }
     } ZEND_HASH_FOREACH_END();
@@ -166,20 +170,32 @@ SWOW_API void swow_clean_module_classes(int module_number)
         zend_hash_del(CG(class_table), class_name);
     } ZEND_HASH_FOREACH_END();
     zend_array_destroy(class_name_map);
+    /* Rehash the class table after deleting classes. This ensures that all internal
+     * classes are contiguous, which means we don't need to perform full table cleanup
+     * on shutdown. */
+	zend_hash_rehash(CG(class_table));
 }
 
 static int swow_clean_module_function_callback(zval *z_fe, void *argument)
 {
     zend_function *fe = (zend_function *) Z_PTR_P(z_fe);
-    int module_number = *(int *) argument;
-    if (fe->common.type == ZEND_INTERNAL_FUNCTION && fe->internal_function.module->module_number == module_number) {
+    zend_module_entry *module = (zend_module_entry *) argument;
+    if (fe->common.type == ZEND_INTERNAL_FUNCTION && fe->internal_function.module->module_number == module->module_number) {
         return ZEND_HASH_APPLY_REMOVE;
     } else {
         return ZEND_HASH_APPLY_KEEP;
     }
 }
 
-SWOW_API void swow_clean_module_functions(int module_number)
+SWOW_API void swow_clean_module_functions(zend_module_entry *module)
 {
-    zend_hash_apply_with_argument(CG(function_table), swow_clean_module_function_callback, (void *) &module_number);
+    if (module->functions != NULL) {
+        zend_unregister_functions(module->functions, -1, NULL);
+        /* Clean functions registered separately from module->functions */
+        zend_hash_apply_with_argument(CG(function_table), swow_clean_module_function_callback, module);
+    }
+    /* Rehash the function table after deleting functions. This ensures that all internal
+	 * functions are contiguous, which means we don't need to perform full table cleanup
+	 * on shutdown. Search "persistent_functions_count" for more. */
+	zend_hash_rehash(CG(function_table));
 }
