@@ -20,6 +20,7 @@
 #include "swow_errno.h"
 #include "swow_log.h"
 #include "swow_debug.h"
+#include "swow_hook.h"
 #include "swow_utils.h"
 #include "swow_defer.h"
 #include "swow_coroutine.h"
@@ -251,25 +252,6 @@ PHP_MINIT_FUNCTION(swow)
 }
 /* }}} */
 
-#define SWOW_COMPATIBLE_WITH_DL 1 // TODO: fix it in php-src
-#ifdef SWOW_COMPATIBLE_WITH_DL
-static int swow_clean_module_function_callback(zval *el, void *arg)
-{
-    zend_function *fe = (zend_function *) Z_PTR_P(el);
-    int module_number = *(int *) arg;
-    if (fe->common.type == ZEND_INTERNAL_FUNCTION && fe->internal_function.module->module_number == module_number) {
-        return ZEND_HASH_APPLY_REMOVE;
-    } else {
-        return ZEND_HASH_APPLY_KEEP;
-    }
-}
-
-static void swow_clean_module_functions(int module_number)
-{
-    zend_hash_apply_with_argument(CG(function_table), swow_clean_module_function_callback, (void *) &module_number);
-}
-#endif
-
 /* {{{ PHP_MSHUTDOWN_FUNCTION
  */
 PHP_MSHUTDOWN_FUNCTION(swow)
@@ -304,9 +286,11 @@ PHP_MSHUTDOWN_FUNCTION(swow)
         }
     }
 
+#define SWOW_COMPATIBLE_WITH_DL 1 // TODO: fix it in php-src
 #ifdef SWOW_COMPATIBLE_WITH_DL
     if (type == MODULE_TEMPORARY) {
-        swow_clean_module_functions(module_number);
+        zend_module_entry *module = (zend_module_entry *) zend_hash_str_find_ptr(&module_registry, ZEND_STRL("swow"));
+        swow_clean_module_functions(module);
     }
 #endif
 
