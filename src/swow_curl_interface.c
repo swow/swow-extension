@@ -505,41 +505,41 @@ static HashTable *curl_get_gc(zend_object *object, zval **table, int *n)
 
     zend_get_gc_buffer_add_zval(gc_buffer, &curl->postfields);
     if (curl->handlers.read) {
-        if (ZEND_FCC_INITIALIZED(curl->handlers.read->fcc)) {
-            zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.read->fcc);
+        if (SWOW_FCC_INITIALIZED(curl->handlers.read->fcc)) {
+            swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.read->fcc);
         }
         zend_get_gc_buffer_add_zval(gc_buffer, &curl->handlers.read->stream);
     }
 
     if (curl->handlers.write) {
-        if (ZEND_FCC_INITIALIZED(curl->handlers.write->fcc)) {
-            zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.write->fcc);
+        if (SWOW_FCC_INITIALIZED(curl->handlers.write->fcc)) {
+            swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.write->fcc);
         }
         zend_get_gc_buffer_add_zval(gc_buffer, &curl->handlers.write->stream);
     }
 
     if (curl->handlers.write_header) {
-        if (ZEND_FCC_INITIALIZED(curl->handlers.write_header->fcc)) {
-            zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.write_header->fcc);
+        if (SWOW_FCC_INITIALIZED(curl->handlers.write_header->fcc)) {
+            swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.write_header->fcc);
         }
         zend_get_gc_buffer_add_zval(gc_buffer, &curl->handlers.write_header->stream);
     }
 
-    if (ZEND_FCC_INITIALIZED(curl->handlers.progress)) {
-        zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.progress);
+    if (SWOW_FCC_INITIALIZED(curl->handlers.progress)) {
+        swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.progress);
     }
 
-    if (ZEND_FCC_INITIALIZED(curl->handlers.xferinfo)) {
-        zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.xferinfo);
+    if (SWOW_FCC_INITIALIZED(curl->handlers.xferinfo)) {
+        swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.xferinfo);
     }
 
-    if (ZEND_FCC_INITIALIZED(curl->handlers.fnmatch)) {
-        zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.fnmatch);
+    if (SWOW_FCC_INITIALIZED(curl->handlers.fnmatch)) {
+        swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.fnmatch);
     }
 
 #if LIBCURL_VERSION_NUM >= 0x075400 /* Available since 7.84.0 */
-    if (ZEND_FCC_INITIALIZED(curl->handlers.sshhostkey)) {
-        zend_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.sshhostkey);
+    if (SWOW_FCC_INITIALIZED(curl->handlers.sshhostkey)) {
+        swow_get_gc_buffer_add_fcc(gc_buffer, &curl->handlers.sshhostkey);
     }
 #endif
 
@@ -621,7 +621,7 @@ static size_t curl_write(char *data, size_t size, size_t nmemb, void *ctx)
             ZVAL_STRINGL(&argv[1], data, length);
 
             ch->in_callback = true;
-            zend_call_known_fcc(&write_handler->fcc, &retval, /* param_count */ 2, argv, /* named_params */ NULL);
+            swow_call_known_fcc(&write_handler->fcc, &retval, /* param_count */ 2, argv, /* named_params */ NULL);
             ch->in_callback = false;
             if (!Z_ISUNDEF(retval)) {
                 _swow_curl_verify_handlers(ch, /* reporterror */ true);
@@ -653,7 +653,7 @@ static int curl_fnmatch(void *ctx, const char *pattern, const char *string)
     ZVAL_STRING(&argv[2], string);
 
     ch->in_callback = true;
-    zend_call_known_fcc(&ch->handlers.fnmatch, &retval, /* param_count */ 3, argv, /* named_params */ NULL);
+    swow_call_known_fcc(&ch->handlers.fnmatch, &retval, /* param_count */ 3, argv, /* named_params */ NULL);
     ch->in_callback = false;
 
     if (!Z_ISUNDEF(retval)) {
@@ -690,7 +690,7 @@ static size_t curl_progress(void *clientp, double dltotal, double dlnow, double 
     ZVAL_LONG(&args[4], (zend_long)ulnow);
 
     ch->in_callback = true;
-    zend_call_known_fcc(&ch->handlers.progress, &retval, /* param_count */ 5, args, /* named_params */ NULL);
+    swow_call_known_fcc(&ch->handlers.progress, &retval, /* param_count */ 5, args, /* named_params */ NULL);
     ch->in_callback = false;
 
     if (!Z_ISUNDEF(retval)) {
@@ -728,7 +728,7 @@ static size_t curl_xferinfo(void *clientp, curl_off_t dltotal, curl_off_t dlnow,
     ZVAL_LONG(&argv[4], ulnow);
 
     ch->in_callback = true;
-    zend_call_known_fcc(&ch->handlers.xferinfo, &retval, /* param_count */ 5, argv, /* named_params */ NULL);
+    swow_call_known_fcc(&ch->handlers.xferinfo, &retval, /* param_count */ 5, argv, /* named_params */ NULL);
     ch->in_callback = false;
 
     if (!Z_ISUNDEF(retval)) {
@@ -765,7 +765,7 @@ static int curl_ssh_hostkeyfunction(void *clientp, int keytype, const char *key,
     ZVAL_LONG(&args[3], keylen);
 
     ch->in_callback = true;
-    zend_call_known_fcc(&ch->handlers.sshhostkey, &retval, /* param_count */ 4, args, /* named_params */ NULL);
+    swow_call_known_fcc(&ch->handlers.sshhostkey, &retval, /* param_count */ 4, args, /* named_params */ NULL);
     ch->in_callback = false;
 
     if (!Z_ISUNDEF(retval)) {
@@ -816,7 +816,7 @@ static size_t curl_read(char *data, size_t size, size_t nmemb, void *ctx)
             ZVAL_LONG(&argv[2], (int)size * nmemb);
 
             ch->in_callback = true;
-            zend_call_known_fcc(&read_handler->fcc, &retval, /* param_count */ 3, argv, /* named_params */ NULL);
+            swow_call_known_fcc(&read_handler->fcc, &retval, /* param_count */ 3, argv, /* named_params */ NULL);
             ch->in_callback = false;
             if (!Z_ISUNDEF(retval)) {
                 _swow_curl_verify_handlers(ch, /* reporterror */ true);
@@ -868,7 +868,7 @@ static size_t curl_write_header(char *data, size_t size, size_t nmemb, void *ctx
             ZVAL_STRINGL(&argv[1], data, length);
 
             ch->in_callback = true;
-            zend_call_known_fcc(&write_handler->fcc, &retval, /* param_count */ 2, argv, /* named_params */ NULL);
+            swow_call_known_fcc(&write_handler->fcc, &retval, /* param_count */ 2, argv, /* named_params */ NULL);
             ch->in_callback = false;
             if (!Z_ISUNDEF(retval)) {
                 // TODO: Check for valid int type for return value
@@ -1069,11 +1069,11 @@ void swow_init_curl_handle(php_curl *ch)
     ch->handlers.write = ecalloc(1, sizeof(php_curl_write));
     ch->handlers.write_header = ecalloc(1, sizeof(php_curl_write));
     ch->handlers.read = ecalloc(1, sizeof(php_curl_read));
-    ch->handlers.progress = empty_fcall_info_cache;
-    ch->handlers.xferinfo = empty_fcall_info_cache;
-    ch->handlers.fnmatch = empty_fcall_info_cache;
+    ch->handlers.progress = swow_empty_fcall_info_cache;
+    ch->handlers.xferinfo = swow_empty_fcall_info_cache;
+    ch->handlers.fnmatch = swow_empty_fcall_info_cache;
 #if LIBCURL_VERSION_NUM >= 0x075400 /* Available since 7.84.0 */
-    ch->handlers.sshhostkey = empty_fcall_info_cache;
+    ch->handlers.sshhostkey = swow_empty_fcall_info_cache;
 #endif
     ch->clone = emalloc(sizeof(uint32_t));
     *ch->clone = 1;
@@ -1195,10 +1195,10 @@ PHP_FUNCTION(swow_curl_init)
 }
 /* }}} */
 
-static void php_curl_copy_fcc_with_option(php_curl *ch, CURLoption option, zend_fcall_info_cache *target_fcc, zend_fcall_info_cache *source_fcc)
+static void php_curl_copy_fcc_with_option(php_curl *ch, CURLoption option, swow_fcall_info_cache *target_fcc, swow_fcall_info_cache *source_fcc)
 {
-    if (ZEND_FCC_INITIALIZED(*source_fcc)) {
-        zend_fcc_dup(target_fcc, source_fcc);
+    if (SWOW_FCC_INITIALIZED(*source_fcc)) {
+        swow_fcc_dup(target_fcc, source_fcc);
         curl_easy_setopt(ch->cp, option, (void *) ch);
     }
 }
@@ -1226,14 +1226,14 @@ void _swow_setup_easy_copy_handlers(php_curl *ch, php_curl *source)
     ch->handlers.read->fp = source->handlers.read->fp;
     ch->handlers.read->res = source->handlers.read->res;
 
-    if (ZEND_FCC_INITIALIZED(source->handlers.read->fcc)) {
-        zend_fcc_dup(&source->handlers.read->fcc, &source->handlers.read->fcc);
+    if (SWOW_FCC_INITIALIZED(source->handlers.read->fcc)) {
+        swow_fcc_dup(&source->handlers.read->fcc, &source->handlers.read->fcc);
     }
-    if (ZEND_FCC_INITIALIZED(source->handlers.write->fcc)) {
-        zend_fcc_dup(&source->handlers.write->fcc, &source->handlers.write->fcc);
+    if (SWOW_FCC_INITIALIZED(source->handlers.write->fcc)) {
+        swow_fcc_dup(&source->handlers.write->fcc, &source->handlers.write->fcc);
     }
-    if (ZEND_FCC_INITIALIZED(source->handlers.write_header->fcc)) {
-        zend_fcc_dup(&source->handlers.write_header->fcc, &source->handlers.write_header->fcc);
+    if (SWOW_FCC_INITIALIZED(source->handlers.write_header->fcc)) {
+        swow_fcc_dup(&source->handlers.write_header->fcc, &source->handlers.write_header->fcc);
     }
 
     curl_easy_setopt(ch->cp, CURLOPT_ERRORBUFFER,       ch->err.str);
@@ -1547,21 +1547,21 @@ PHP_FUNCTION(swow_curl_copy_handle)
 }
 /* }}} */
 
-static bool php_curl_set_callable_handler(zend_fcall_info_cache *const handler_fcc, zval *callable, bool is_array_config, const char *option_name)
+static bool php_curl_set_callable_handler(swow_fcall_info_cache *const handler_fcc, zval *callable, bool is_array_config, const char *option_name)
 {
-    if (ZEND_FCC_INITIALIZED(*handler_fcc)) {
-        zend_fcc_dtor(handler_fcc);
+    if (SWOW_FCC_INITIALIZED(*handler_fcc)) {
+        swow_fcc_dtor(handler_fcc);
     }
 
     char *error = NULL;
-    if (UNEXPECTED(!zend_is_callable_ex(callable, /* object */ NULL, /* check_flags */ 0, /* callable_name */ NULL, handler_fcc, /* error */ &error))) {
+    if (UNEXPECTED(!swow_is_callable_ex(callable, /* object */ NULL, /* check_flags */ 0, /* callable_name */ NULL, handler_fcc, /* error */ &error))) {
         if (!EG(exception)) {
             zend_argument_type_error(2 + !is_array_config, "must be a valid callback for option %s, %s", option_name, error);
         }
         efree(error);
         return false;
     }
-    zend_fcc_addref(handler_fcc);
+    swow_fcc_addref(handler_fcc);
     return true;
 }
 
@@ -2741,14 +2741,14 @@ static void curl_free_obj(zend_object *object)
     }
 
     smart_str_free(&ch->handlers.write->buf);
-    if (ZEND_FCC_INITIALIZED(ch->handlers.write->fcc)) {
-        zend_fcc_dtor(&ch->handlers.write->fcc);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.write->fcc)) {
+        swow_fcc_dtor(&ch->handlers.write->fcc);
     }
-    if (ZEND_FCC_INITIALIZED(ch->handlers.write_header->fcc)) {
-        zend_fcc_dtor(&ch->handlers.write_header->fcc);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.write_header->fcc)) {
+        swow_fcc_dtor(&ch->handlers.write_header->fcc);
     }
-    if (ZEND_FCC_INITIALIZED(ch->handlers.read->fcc)) {
-        zend_fcc_dtor(&ch->handlers.read->fcc);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.read->fcc)) {
+        swow_fcc_dtor(&ch->handlers.read->fcc);
     }
     zval_ptr_dtor(&ch->handlers.std_err);
     if (ch->header.str) {
@@ -2763,18 +2763,18 @@ static void curl_free_obj(zend_object *object)
     efree(ch->handlers.write_header);
     efree(ch->handlers.read);
 
-    if (ZEND_FCC_INITIALIZED(ch->handlers.progress)) {
-        zend_fcc_dtor(&ch->handlers.progress);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.progress)) {
+        swow_fcc_dtor(&ch->handlers.progress);
     }
-    if (ZEND_FCC_INITIALIZED(ch->handlers.xferinfo)) {
-        zend_fcc_dtor(&ch->handlers.xferinfo);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.xferinfo)) {
+        swow_fcc_dtor(&ch->handlers.xferinfo);
     }
-    if (ZEND_FCC_INITIALIZED(ch->handlers.fnmatch)) {
-        zend_fcc_dtor(&ch->handlers.fnmatch);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.fnmatch)) {
+        swow_fcc_dtor(&ch->handlers.fnmatch);
     }
 #if LIBCURL_VERSION_NUM >= 0x075400 /* Available since 7.84.0 */
-    if (ZEND_FCC_INITIALIZED(ch->handlers.sshhostkey)) {
-        zend_fcc_dtor(&ch->handlers.sshhostkey);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.sshhostkey)) {
+        swow_fcc_dtor(&ch->handlers.sshhostkey);
     }
 #endif
 
@@ -2839,21 +2839,21 @@ static void _php_curl_reset_handlers(php_curl *ch)
         ZVAL_UNDEF(&ch->handlers.std_err);
     }
 
-    if (ZEND_FCC_INITIALIZED(ch->handlers.progress)) {
-        zend_fcc_dtor(&ch->handlers.progress);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.progress)) {
+        swow_fcc_dtor(&ch->handlers.progress);
     }
 
-    if (ZEND_FCC_INITIALIZED(ch->handlers.xferinfo)) {
-        zend_fcc_dtor(&ch->handlers.xferinfo);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.xferinfo)) {
+        swow_fcc_dtor(&ch->handlers.xferinfo);
     }
 
-    if (ZEND_FCC_INITIALIZED(ch->handlers.fnmatch)) {
-        zend_fcc_dtor(&ch->handlers.fnmatch);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.fnmatch)) {
+        swow_fcc_dtor(&ch->handlers.fnmatch);
     }
 
 #if LIBCURL_VERSION_NUM >= 0x075400 /* Available since 7.84.0 */
-    if (ZEND_FCC_INITIALIZED(ch->handlers.sshhostkey)) {
-        zend_fcc_dtor(&ch->handlers.sshhostkey);
+    if (SWOW_FCC_INITIALIZED(ch->handlers.sshhostkey)) {
+        swow_fcc_dtor(&ch->handlers.sshhostkey);
     }
 #endif
 }

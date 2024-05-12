@@ -88,64 +88,6 @@ static zend_always_inline bool zend_string_starts_with_cstr_ci(const zend_string
     zend_string_starts_with_cstr_ci(str, prefix, strlen(prefix))
 # endif
 #endif
-
-#ifndef ZEND_FCC_INITIALIZED
-#define ZEND_FCC_INITIALIZED(fcc) ((fcc).function_handler != NULL)
-
-static zend_always_inline void zend_fcc_addref(zend_fcall_info_cache *fcc)
-{
-    ZEND_ASSERT(ZEND_FCC_INITIALIZED(*fcc) && "FCC Not initialized, possibly refetch trampoline freed by ZPP?");
-    /* If the cached trampoline is set, free it */
-    if (UNEXPECTED(fcc->function_handler == &EG(trampoline))) {
-        zend_function *copy = (zend_function*)emalloc(sizeof(zend_function));
-
-        memcpy(copy, fcc->function_handler, sizeof(zend_function));
-        fcc->function_handler->common.function_name = NULL;
-        fcc->function_handler = copy;
-    }
-    if (fcc->object) {
-        GC_ADDREF(fcc->object);
-    }
-}
-
-static zend_always_inline void zend_fcc_dup(/* restrict */ zend_fcall_info_cache *dest, const zend_fcall_info_cache *src)
-{
-    memcpy(dest, src, sizeof(zend_fcall_info_cache));
-    zend_fcc_addref(dest);
-}
-
-static zend_always_inline void zend_fcc_dtor(zend_fcall_info_cache *fcc)
-{
-    ZEND_ASSERT(fcc->function_handler);
-    if (fcc->object) {
-        OBJ_RELEASE(fcc->object);
-    }
-    /* Need to free potential trampoline (__call/__callStatic) copied function handler before releasing the closure */
-    zend_release_fcall_info_cache(fcc);
-    memcpy(fcc, &empty_fcall_info_cache, sizeof(zend_fcall_info_cache));
-}
-
-static zend_always_inline void zend_get_gc_buffer_add_fcc(zend_get_gc_buffer *gc_buffer, zend_fcall_info_cache *fcc)
-{
-    ZEND_ASSERT(ZEND_FCC_INITIALIZED(*fcc));
-    if (fcc->object) {
-        zend_get_gc_buffer_add_obj(gc_buffer, fcc->object);
-    }
-}
-
-static zend_always_inline void zend_call_known_fcc(
-    zend_fcall_info_cache *fcc, zval *retval_ptr, uint32_t param_count, zval *params, HashTable *named_params)
-{
-    zend_function *func = fcc->function_handler;
-    /* Need to copy trampolines as they get released after they are called */
-    if (UNEXPECTED(func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE)) {
-        func = (zend_function*) emalloc(sizeof(zend_function));
-        memcpy(func, fcc->function_handler, sizeof(zend_function));
-        zend_string_addref(func->op_array.function_name);
-    }
-    zend_call_known_function(func, fcc->object, fcc->called_scope, retval_ptr, param_count, params, named_params);
-}
-#endif
 /* }}} */
 
 /* ZTS */
@@ -509,6 +451,126 @@ static zend_always_inline bool swow_parse_arg_stringable(zval *arg, zend_string 
 } while (0)
 
 /* function */
+
+
+#ifdef SWOW_FCC_INITIALIZED
+
+#define swow_fcall_info_cache zend_fcall_info_cache
+#define swow_empty_fcall_info_cache empty_fcall_info_cache
+
+#define SWOW_FCC_INITIALIZED ZEND_FCC_INITIALIZED
+
+#define swow_fcc_equals zend_fcc_equals
+#define swow_fcc_addref zend_fcc_addref
+#define swow_fcc_dup zend_fcc_dup
+#define swow_fcc_dtor zend_fcc_dtor
+#define swow_get_gc_buffer_add_fcc zend_get_gc_buffer_add_fcc
+#define swow_call_known_fcc zend_call_known_fcc
+
+#else
+
+typedef struct swow_fcall_info_cache {
+    zend_function *function_handler;
+    zend_class_entry *calling_scope;
+    zend_class_entry *called_scope;
+    zend_object *object; /* Instance of object for method calls */
+    zend_object *closure; /* Closure reference, only if the callable *is* the object */
+} swow_fcall_info_cache;
+
+extern SWOW_API const swow_fcall_info_cache swow_empty_fcall_info_cache;
+
+#define SWOW_FCC_INITIALIZED(fcc) ((fcc).function_handler != NULL)
+
+/* Zend FCC API to store and handle PHP userland functions */
+static zend_always_inline bool swow_fcc_equals(const swow_fcall_info_cache* a, const swow_fcall_info_cache* b)
+{
+    if (UNEXPECTED((a->function_handler->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE) &&
+        (b->function_handler->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE))) {
+        return a->object == b->object
+            && a->calling_scope == b->calling_scope
+            && a->closure == b->closure
+            && zend_string_equals(a->function_handler->common.function_name, b->function_handler->common.function_name)
+        ;
+    }
+    return a->function_handler == b->function_handler
+        && a->object == b->object
+        && a->calling_scope == b->calling_scope
+        && a->closure == b->closure
+    ;
+}
+
+static zend_always_inline void swow_fcc_addref(swow_fcall_info_cache *fcc)
+{
+    ZEND_ASSERT(SWOW_FCC_INITIALIZED(*fcc) && "FCC Not initialized, possibly refetch trampoline freed by ZPP?");
+    /* If the cached trampoline is set, free it */
+    if (UNEXPECTED(fcc->function_handler == &EG(trampoline))) {
+        zend_function *copy = (zend_function*)emalloc(sizeof(zend_function));
+
+        memcpy(copy, fcc->function_handler, sizeof(zend_function));
+        fcc->function_handler->common.function_name = NULL;
+        fcc->function_handler = copy;
+    }
+    if (fcc->object) {
+        GC_ADDREF(fcc->object);
+    }
+    if (fcc->closure) {
+        GC_ADDREF(fcc->closure);
+    }
+}
+
+static zend_always_inline void swow_fcc_dup(/* restrict */ swow_fcall_info_cache *dest, const swow_fcall_info_cache *src)
+{
+    memcpy(dest, src, sizeof(swow_fcall_info_cache));
+    swow_fcc_addref(dest);
+}
+
+static zend_always_inline void swow_fcc_dtor(swow_fcall_info_cache *fcc)
+{
+    ZEND_ASSERT(fcc->function_handler);
+    if (fcc->object) {
+        OBJ_RELEASE(fcc->object);
+    }
+    /* Need to free potential trampoline (__call/__callStatic) copied function handler before releasing the closure */
+    zend_release_fcall_info_cache((zend_fcall_info_cache *) fcc);
+    if (fcc->closure) {
+        OBJ_RELEASE(fcc->closure);
+    }
+    memcpy(fcc, &swow_empty_fcall_info_cache, sizeof(swow_fcall_info_cache));
+}
+
+static zend_always_inline void swow_get_gc_buffer_add_fcc(zend_get_gc_buffer *gc_buffer, swow_fcall_info_cache *fcc)
+{
+    ZEND_ASSERT(SWOW_FCC_INITIALIZED(*fcc));
+    if (fcc->object) {
+        zend_get_gc_buffer_add_obj(gc_buffer, fcc->object);
+    }
+    if (fcc->closure) {
+        zend_get_gc_buffer_add_obj(gc_buffer, fcc->closure);
+    }
+}
+
+static zend_always_inline void swow_call_known_fcc(
+    swow_fcall_info_cache *fcc, zval *retval_ptr, uint32_t param_count, zval *params, HashTable *named_params)
+{
+    zend_function *func = fcc->function_handler;
+    /* Need to copy trampolines as they get released after they are called */
+    if (UNEXPECTED(func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE)) {
+        func = (zend_function*) emalloc(sizeof(zend_function));
+        memcpy(func, fcc->function_handler, sizeof(zend_function));
+        zend_string_addref(func->op_array.function_name);
+    }
+    zend_call_known_function(func, fcc->object, fcc->called_scope, retval_ptr, param_count, params, named_params);
+}
+
+static zend_always_inline bool swow_is_callable_ex(zval *callable, zend_object *object, uint32_t check_flags, zend_string **callable_name, swow_fcall_info_cache *fcc, char **error)
+{
+    bool ret = zend_is_callable_ex(callable, object, check_flags, callable_name, (zend_fcall_info_cache *) fcc, error);
+    if (ret && Z_TYPE_P(callable) == IS_OBJECT) {
+        fcc->closure = Z_OBJ_P(callable);
+    }
+    return ret;
+}
+#endif
 
 typedef struct swow_fcall_s {
     zend_fcall_info info;

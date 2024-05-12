@@ -18,6 +18,8 @@
 
 #include "swow.h"
 
+SWOW_API const swow_fcall_info_cache swow_empty_fcall_info_cache = { 0 };
+
 /* PHP 8.1 compatibility {{{*/
 #if PHP_VERSION_ID < 80100
 SWOW_API zend_string* ZEND_FASTCALL zend_ulong_to_str(zend_ulong num)
@@ -210,6 +212,8 @@ SWOW_API void swow_object_properties_clean(zend_object *object)
 }
 
 /* callable */
+
+// TODO: use zend_fcc* APIs
 
 SWOW_API bool swow_fcall_storage_is_available(const swow_fcall_storage_t *fcall)
 {

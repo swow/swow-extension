@@ -47,7 +47,7 @@ PHP_MINFO_FUNCTION(curl);
 #endif
 
 typedef struct {
-    zend_fcall_info_cache fcc;
+    swow_fcall_info_cache fcc;
     FILE                 *fp;
     smart_str             buf;
     int                   method;
@@ -55,7 +55,7 @@ typedef struct {
 } php_curl_write;
 
 typedef struct {
-    zend_fcall_info_cache fcc;
+    swow_fcall_info_cache fcc;
     FILE                 *fp;
     zend_resource        *res;
     int                   method;
@@ -67,11 +67,11 @@ typedef struct {
     php_curl_write    *write_header;
     php_curl_read     *read;
     zval               std_err;
-    zend_fcall_info_cache progress;
-    zend_fcall_info_cache xferinfo;
-    zend_fcall_info_cache fnmatch;
+    swow_fcall_info_cache progress;
+    swow_fcall_info_cache xferinfo;
+    swow_fcall_info_cache fnmatch;
 #if LIBCURL_VERSION_NUM >= 0x075400 /* Available since 7.84.0 */
-    zend_fcall_info_cache sshhostkey;
+    swow_fcall_info_cache sshhostkey;
 #endif
 } php_curl_handlers;
 
@@ -109,7 +109,7 @@ typedef struct {
 #define CURLOPT_SAFE_UPLOAD -1
 
 typedef struct {
-    zend_fcall_info_cache server_push;
+    swow_fcall_info_cache server_push;
 } php_curlm_handlers;
 
 typedef struct {
