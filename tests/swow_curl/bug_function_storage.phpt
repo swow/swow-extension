@@ -13,23 +13,43 @@ skip_if(!str_contains(@file_get_contents(TEST_WEBSITE2_URL), TEST_WEBSITE2_KEYWO
 <?php
 require_once __DIR__ . '/../include/bootstrap.php';
 
-$headerLines = [];
-$headerFunction = static function (CurlHandle $curl, string $headerLine) use (&$headerLines): int {
+$testHeaderFunction = static function (CurlHandle $curl, string $headerLine): int {
+    return testHeaderFunction($curl, $headerLine);
+};
+
+function testHeaderFunction(CurlHandle $curl, string $headerLine): int
+{
     $parts = explode(':', $headerLine, 2);
     if (count($parts) === 2) {
-        $headerLines[strtolower($parts[0])] = trim($parts[1]);
+        $GLOBALS['header_lines'][strtolower($parts[0])] = trim($parts[1]);
     }
     return strlen($headerLine);
-};
+}
+
+class testHeaderFunctionClass
+{
+    public static function headerFunction(CurlHandle $curl, string $headerLine): int
+    {
+        return testHeaderFunction($curl, $headerLine);
+    }
+}
+
+foreach ([$testHeaderFunction, 'testHeaderFunction', [testHeaderFunctionClass::class, 'headerFunction']] as $headerFunction) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, TEST_WEBSITE1_URL);
+    curl_setopt($curl, CURLOPT_HEADERFUNCTION, $headerFunction);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    unset($testHeaderFunction);
+    $response = curl_exec($curl);
+    Assert::contains($response, TEST_WEBSITE1_KEYWORD);
+    Assert::true(strtotime($GLOBALS['header_lines']['date']) > 0);
+    curl_close($curl);
+}
+
 $curl = curl_init();
 curl_setopt($curl, CURLOPT_URL, TEST_WEBSITE1_URL);
-curl_setopt($curl, CURLOPT_HEADERFUNCTION, $headerFunction);
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-unset($headerFunction);
-$response = curl_exec($curl);
-Assert::contains($response, TEST_WEBSITE1_KEYWORD);
-Assert::true(strtotime($headerLines['date']) > 0);
-curl_close($curl);
+curl_setopt($curl, CURLOPT_HEADERFUNCTION, 'testHeaderFunction');
+curl_setopt($curl, CURLOPT_HEADERFUNCTION, null);
 
 echo "Done\n";
 ?>

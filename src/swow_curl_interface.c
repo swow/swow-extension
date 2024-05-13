@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* php-src: f4dbe2390db6116d4867456396e3c97ceb15ff71 */
+/* php-src: d2a9edfee65f26f7d8ccc12fc4ffb5d6bec49c6b */
 
 // @see: https://github.com/php/php-src/pull/13347
 #if !defined(__cplusplus) && !defined(_MSC_VER) && defined(HAVE_WTYPEDEF_REDEFINITION)
@@ -1551,6 +1551,11 @@ static bool php_curl_set_callable_handler(swow_fcall_info_cache *const handler_f
 {
     if (SWOW_FCC_INITIALIZED(*handler_fcc)) {
         swow_fcc_dtor(handler_fcc);
+    }
+
+    if (Z_TYPE_P(callable) == IS_NULL) {
+        handler_fcc->function_handler = NULL;
+        return true;
     }
 
     char *error = NULL;
