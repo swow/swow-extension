@@ -34,7 +34,7 @@ while (true) {
 %AFatal error: [Fatal error in R%d] Allowed memory size of %d bytes exhausted%A (tried to allocate %d bytes)
 Stack trace:
 #0 %s(%d): sleep(1)
-#1 [internal function]: {closure}()
+#1 [internal function]: {closur%s}()
 #2 %s(%d): Swow\Coroutine->resume()
 #3 {main}
   triggered in %s on line %d

@@ -36,7 +36,7 @@ waitAll();
 %AFatal error: [Fatal error in R%d] Allowed memory size of %d bytes exhausted%A (tried to allocate %d bytes)
 Stack trace:
 #0 %sbailout_in_shutdown_functions.php(%d): str_repeat('X', 134217728)
-#1 [internal function]: {closure}()
+#1 [internal function]: {closur%s}()
 #2 %sbailout_in_shutdown_functions.php(%d): Swow\Coroutine::run(Object(Closure))
 #3 {main}
   triggered in %sbailout_in_shutdown_functions.php on line %d
@@ -46,6 +46,6 @@ Coroutine count: 66
 %AFatal error: [Fatal error in main] Allowed memory size of %d bytes exhausted%A (tried to allocate %d bytes)
 Stack trace:
 #0 %sbailout_in_shutdown_functions.php(%d): str_repeat('X', 134217729)
-#1 [internal function]: {closure}()
+#1 [internal function]: {closur%s}()
 #2 {main}
   triggered in %sbailout_in_shutdown_functions.php on line %d

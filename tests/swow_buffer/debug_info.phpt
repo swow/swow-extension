@@ -96,7 +96,7 @@ object(Swow\Buffer)#%d (%d) {
     ["trace"]=>
     string(%s) "
 #0 %s(%d): Swow\Socket->recvFrom(Object(Swow\Buffer))
-#1 [internal function]: {closure}()
+#1 [internal function]: {closur%s}()
 #2 {main}
 "
   }

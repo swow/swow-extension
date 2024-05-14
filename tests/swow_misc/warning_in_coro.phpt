@@ -33,7 +33,7 @@ Stack trace:%A
 %ADeprecated: [Deprecated in R%d] running run-tests.php to test php is deprecated
 Stack trace:
 #%d %swarning_in_coro.php(%d): trigger_error('running run-tes...', %d)
-#%d [internal function]: {closure}()%A
+#%d [internal function]: {closur%s}()%A
 #%d %s(%d): Swow\Coroutine::run(Object(Closure))
 #%d {main}
   triggered in %swarning_in_coro.php on line %d
@@ -41,7 +41,7 @@ Stack trace:
 %ANotice: [Notice in R%d] running run-tests.php to test swow is deprecated
 Stack trace:
 #%d %swarning_in_coro.php(%d): trigger_error('running run-tes...', %d)
-#%d [internal function]: {closure}()%A
+#%d [internal function]: {closur%s}()%A
 #%d %s(%d): Swow\Coroutine::run(Object(Closure))
 #%d {main}
   triggered in %swarning_in_coro.php on line %d
@@ -49,7 +49,7 @@ Stack trace:
 %AWarning: [Warning in R%d] running run-tests.php to test twosee is deprecated
 Stack trace:
 #%d %swarning_in_coro.php(%d): trigger_error('running run-tes...', %d)
-#%d [internal function]: {closure}()%A
+#%d [internal function]: {closur%s}()%A
 #%d %s(%d): Swow\Coroutine::run(Object(Closure))
 #%d {main}
   triggered in %swarning_in_coro.php on line %d
@@ -57,7 +57,7 @@ Stack trace:
 %AFatal error: [Fatal error in R%d] running run-tests.php to test dixyes is deprecated
 Stack trace:
 #%d %swarning_in_coro.php(%d): trigger_error('running run-tes...', %d)
-#%d [internal function]: {closure}()%A
+#%d [internal function]: {closur%s}()%A
 #%d %s(%d): Swow\Coroutine::run(Object(Closure))
 #%d {main}
   triggered in %swarning_in_coro.php on line %d
