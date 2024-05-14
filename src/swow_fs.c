@@ -35,7 +35,7 @@
 #include "cat_work.h"
 #include "cat_time.h"
 
-// from main/streams/plain_wrapper.c @ 0b2e6bc2b07246087bd0e39d631085b5e6bd511d
+// from main/streams/plain_wrapper.c @ 4dad74f250de682a7deae0c9895436cd8aee6978
 
 #include "php.h"
 #include "php_globals.h"
@@ -118,7 +118,7 @@ extern int php_get_gid_by_name(const char *name, gid_t *gid);
 #endif
 
 #if defined(PHP_WIN32)
-# define PLAIN_WRAP_BUF_SIZE(st) (((st) > UINT_MAX) ? UINT_MAX : (unsigned int) (st))
+# define PLAIN_WRAP_BUF_SIZE(st) ((unsigned int)(st > INT_MAX ? INT_MAX : st))
 #else
 # define PLAIN_WRAP_BUF_SIZE(st) (st)
 #endif
@@ -1071,7 +1071,7 @@ static ssize_t swow_stdiop_fs_write(php_stream *stream, const char *buf, size_t 
     assert(data != NULL);
 
     if (data->fd >= 0) {
-        ssize_t bytes_written = cat_fs_write(data->fd, buf, count);
+        ssize_t bytes_written = cat_fs_write(data->fd, buf, PLAIN_WRAP_BUF_SIZE(count));
         UPDATE_ERRNO_FROM_CAT();
         if (bytes_written < 0) {
             cat_errno_t cat_errno = cat_get_last_error_code();
