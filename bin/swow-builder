@@ -151,7 +151,7 @@ if (!file_exists("{$workSpace}/Makefile") || $rebuild) {
     $configureOptions = [];
     foreach ($mappedOptions as $mappedOptionAlias => $mappedOption) {
         if (isset($options[$mappedOptionAlias])) {
-            $configureOptions[] = '--with-php-config=' . $options[$mappedOptionAlias];
+            $configureOptions[] = sprintf('--%s=%s', $mappedOption, $options[$mappedOptionAlias]);
         }
     }
     foreach ($enableOptions as $enableOptionAlias => $enableOption) {
