@@ -19,10 +19,10 @@ if (PHP_OS_FAMILY !== 'Windows') {
     define('SERVER_SOCK3', '/tmp/swow_server_' . getRandomBytes(8) . '.sock');
     define('CLIENT_SOCK', '/tmp/swow_client_' . getRandomBytes(8) . '.sock');
 } else {
-    define('SERVER_SOCK1', '\\\\?\\pipe\\swow_server_' . getRandomBytes(8));
-    define('SERVER_SOCK2', '\\\\?\\pipe\\swow_server_' . getRandomBytes(8));
-    define('SERVER_SOCK3', '\\\\?\\pipe\\swow_server_' . getRandomBytes(8));
-    define('CLIENT_SOCK', '\\\\?\\pipe\\swow_client_' . getRandomBytes(8));
+    define('SERVER_SOCK1', '\\\?\pipe\swow_server_' . getRandomBytes(8));
+    define('SERVER_SOCK2', '\\\?\pipe\swow_server_' . getRandomBytes(8));
+    define('SERVER_SOCK3', '\\\?\pipe\swow_server_' . getRandomBytes(8));
+    define('CLIENT_SOCK', '\\\?\pipe\swow_client_' . getRandomBytes(8));
 }
 
 function test($type, $server, $msg): void

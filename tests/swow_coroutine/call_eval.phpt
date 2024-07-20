@@ -18,7 +18,7 @@ $remote_coro = Coroutine::run(static function (): void {
 $closure = static function (): void {
     $upper_frame = debug_backtrace()[1];
     Assert::same($upper_frame['function'], 'yield');
-    Assert::same($upper_frame['class'], 'Swow\\Coroutine');
+    Assert::same($upper_frame['class'], 'Swow\Coroutine');
     Assert::same($upper_frame['type'], '::');
     Assert::same($upper_frame['args'][0], 'nonce');
 };

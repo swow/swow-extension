@@ -250,12 +250,12 @@ foreach (['write', 'writeTo'] as $function) {
     Assert::throws(static function () use ($notString, $function, $conn): void {
         // bad buffer spec
         $conn->{$function}([/* buffer spec */ $notString]);
-    }, TypeError::class, expectMessage: '/Argument #1 \(\$vector\) \[0\] \(\$stringable\) must be of type string, array or [\w\\\\]+, class@anonymous given/');
+    }, TypeError::class, expectMessage: '/Argument #1 \(\$vector\) \[0\] \(\$stringable\) must be of type string, array or [\w\\\]+, class@anonymous given/');
 
     Assert::throws(static function () use ($notString, $function, $conn): void {
         // bad buffer spec
         $conn->{$function}([[/* buffer-ish */ $notString]]);
-    }, TypeError::class, expectMessage: '/Argument #1 \(\$vector\) \[0\]\[0\] \(\$data\) must be of type string or [\w\\\\]+, class@anonymous given/');
+    }, TypeError::class, expectMessage: '/Argument #1 \(\$vector\) \[0\]\[0\] \(\$data\) must be of type string or [\w\\\]+, class@anonymous given/');
 
     Assert::throws(static function () use ($buffer, $function, $conn): void {
         // bad buffer spec
@@ -265,7 +265,7 @@ foreach (['write', 'writeTo'] as $function) {
     Assert::throws(static function () use ($buffer, $function, $conn): void {
         // bad buffer spec
         $conn->{$function}([[/* buffer-ish: strange things */ []]]);
-    }, TypeError::class, expectMessage: '/Argument #1 \(\$vector\) \[0\]\[0\] \(\$data\) must be of type string or [\w\\\\]+, array given/');
+    }, TypeError::class, expectMessage: '/Argument #1 \(\$vector\) \[0\]\[0\] \(\$data\) must be of type string or [\w\\\]+, array given/');
 
     Assert::throws(static function () use ($buffer, $function, $conn): void {
         // bad buffer spec

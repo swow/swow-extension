@@ -20,12 +20,12 @@ function try_create(string $class): void
 }
 foreach ([
     'Swow',
-    'Swow\\Http\\Status',
-    'Swow\\Log',
-    'Swow\\Signal',
-    'Swow\\Watchdog',
-    'Swow\\WebSocket\\Opcode',
-    'Swow\\WebSocket\\Status',
+    'Swow\Http\Status',
+    'Swow\Log',
+    'Swow\Signal',
+    'Swow\Watchdog',
+    'Swow\WebSocket\Opcode',
+    'Swow\WebSocket\Status',
 ] as $class) {
     try_create($class);
 }

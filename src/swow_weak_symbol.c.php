@@ -82,7 +82,7 @@ function weaks(string $signs): void
 {
     // dammy signature parser
     foreach (explode("\n", $signs) as $line) {
-        preg_match('/^(?P<ret_name>[^(]+)\\((?P<args>.+)\\);$/', $line, $match);
+        preg_match('/^(?P<ret_name>[^(]+)\((?P<args>.+)\);$/', $line, $match);
         if (!$match) {
             echo "{$line}\n";
             continue;
@@ -90,7 +90,7 @@ function weaks(string $signs): void
 
         $ret_name = $match['ret_name'];
         $argsSign = $match['args'];
-        preg_match('/^(?P<type>.*[*\\s]+)(?P<name>.+)$/', $ret_name, $match);
+        preg_match('/^(?P<type>.*[*\s]+)(?P<name>.+)$/', $ret_name, $match);
         $ret = trim($match['type']) ?: 'void';
         $name = trim($match['name']);
 
@@ -99,7 +99,7 @@ function weaks(string $signs): void
         } else {
             $argsPassthru = [];
             foreach (explode(',', $argsSign) as $argSign) {
-                preg_match('/^(?P<type>.*[*\\s]+)(?P<name>.+)$/', $argSign, $match);
+                preg_match('/^(?P<type>.*[*\s]+)(?P<name>.+)$/', $argSign, $match);
                 // $argType = trim($match['$type']);
                 $argName = trim($match['name']);
                 $argsPassthru[] = $argName;

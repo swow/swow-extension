@@ -19,8 +19,8 @@ if (PHP_OS_FAMILY !== 'Windows') {
     define('SERVER_SOCK', '/tmp/swow_server_' . getRandomBytes(8) . '.sock');
     define('CLIENT_SOCK', '/tmp/swow_client_' . getRandomBytes(8) . '.sock');
 } else {
-    define('SERVER_SOCK', '\\\\?\\pipe\\swow_server_' . getRandomBytes(8));
-    define('CLIENT_SOCK', '\\\\?\\pipe\\swow_client_' . getRandomBytes(8));
+    define('SERVER_SOCK', '\\\?\pipe\swow_server_' . getRandomBytes(8));
+    define('CLIENT_SOCK', '\\\?\pipe\swow_client_' . getRandomBytes(8));
 }
 
 $wrServer = new WaitReference();

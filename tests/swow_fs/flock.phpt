@@ -20,7 +20,7 @@ const TEST_LOCKNAME = __DIR__ . DIRECTORY_SEPARATOR . 'lockfile.txt';
 if (PHP_OS_FAMILY !== 'Windows') {
     define('SOCK_NAME', '/tmp/swow_flock_' . getRandomBytes(8) . '.sock');
 } else {
-    define('SOCK_NAME', '\\\\?\\pipe\\swow_flock_' . getRandomBytes(8));
+    define('SOCK_NAME', '\\\?\pipe\swow_flock_' . getRandomBytes(8));
 }
 
 $sock = new Socket(Socket::TYPE_PIPE);
