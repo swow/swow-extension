@@ -29,11 +29,11 @@ extern "C" {
 
 /* version */
 
-#define SWOW_VERSION            "1.5.2"
-#define SWOW_VERSION_ID         10502
+#define SWOW_VERSION            "1.5.3"
+#define SWOW_VERSION_ID         10503
 #define SWOW_MAJOR_VERSION      1
 #define SWOW_MINOR_VERSION      5
-#define SWOW_RELEASE_VERSION    2
+#define SWOW_RELEASE_VERSION    3
 #define SWOW_EXTRA_VERSION      ""
 
 /* compiler */
