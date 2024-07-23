@@ -57,8 +57,8 @@ define('TEST_MAX_LOOPS', (int) ([0.001, 1, 10, 100, 1000][TEST_PRESSURE_LEVEL] *
 define('TEST_MAX_PROCESSES', [1, 1, 2, 4, 8][TEST_PRESSURE_LEVEL]);
 
 # website constants
-define('TEST_WEBSITE1_URL', getenv('GITHUB_ACTIONS') ? 'https://github.com/' : 'https://weixin.qq.com/');
-define('TEST_WEBSITE1_KEYWORD', getenv('GITHUB_ACTIONS') ? 'GitHub' : 'WeChat');
+define('TEST_WEBSITE1_URL', getenv('GITHUB_ACTIONS') ? 'https://github.com/' : 'https://www.apple.com/');
+define('TEST_WEBSITE1_KEYWORD', getenv('GITHUB_ACTIONS') ? 'GitHub' : 'apple');
 define('TEST_WEBSITE2_URL', getenv('GITHUB_ACTIONS') ? 'https://www.bing.com/' : 'https://www.baidu.com/');
 define('TEST_WEBSITE2_KEYWORD', getenv('GITHUB_ACTIONS') ? 'Bing' : 'baidu');
 
