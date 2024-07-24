@@ -63,7 +63,7 @@ define('TEST_WEBSITE2_URL', getenv('GITHUB_ACTIONS') ? 'https://www.bing.com/' :
 define('TEST_WEBSITE2_KEYWORD', getenv('GITHUB_ACTIONS') ? 'Bing' : 'baidu');
 
 # ini
-if (extension_loaded(Swow::class)) {
+if (extension_loaded(Swow::class) && ini_get('swow.enable')) {
     Swow\Socket::setGlobalTimeout(15 * 1000);
 }
 
