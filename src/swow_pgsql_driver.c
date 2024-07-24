@@ -2629,6 +2629,7 @@ zend_result swow_pgsql_module_init(INIT_FUNC_ARGS)
             // macports/brew
             "/opt/local/lib/",
             // brew
+            "/usr/local/Cellar/libpq@16/lib/",
             "/usr/local/Cellar/libpq@15/lib/",
             "/usr/local/Cellar/libpq@14/lib/",
             // brew (new)
@@ -2642,8 +2643,10 @@ zend_result swow_pgsql_module_init(INIT_FUNC_ARGS)
 # elif defined(CAT_OS_WIN)
 #  define LIBPQ_SO_NAME "libpq.dll"
         {
+            "C:\\Program Files\\PostgreSQL\\16\\bin\\",
             "C:\\Program Files\\PostgreSQL\\15\\bin\\",
             "C:\\Program Files\\PostgreSQL\\14\\bin\\",
+            "C:\\Program Files (x86)\\PostgreSQL\\16\\bin\\",
             "C:\\Program Files (x86)\\PostgreSQL\\15\\bin\\",
             "C:\\Program Files (x86)\\PostgreSQL\\14\\bin\\",
         }
