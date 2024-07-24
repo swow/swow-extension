@@ -87,6 +87,12 @@ static PHP_GINIT_FUNCTION(swow)
     ZEND_TSRMLS_CACHE_UPDATE();
 #endif
     memset(swow_globals, 0, sizeof(*swow_globals));
+
+    swow_globals->runtime_state = SWOW_RUNTIME_STATE_NONE;
+    swow_globals->ini.enable = true;
+    swow_globals->ini.async_threads = 0;
+    swow_globals->ini.async_file = true;
+    swow_globals->ini.async_tty = true;
 }
 /* }}} */
 
@@ -126,21 +132,10 @@ PHP_INI_ENTRY("curl.cainfo", "", PHP_INI_SYSTEM, NULL)
 #endif
 PHP_INI_END()
 
-static void swow_globals_ctor(zend_swow_globals *g)
-{
-    g->runtime_state = SWOW_RUNTIME_STATE_NONE;
-    g->ini.enable = true;
-    g->ini.async_threads = 0;
-    g->ini.async_file = true;
-    g->ini.async_tty = true;
-}
-
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(swow)
 {
-    ZEND_INIT_MODULE_GLOBALS(swow, swow_globals_ctor, NULL);
-
 #ifdef CAT_HAVE_CURL
     zend_module_entry *php_curl_module = zend_hash_str_find_ptr(&module_registry, ZEND_STRL("curl"));
     if (php_curl_module != NULL) {
@@ -256,8 +251,10 @@ PHP_MINIT_FUNCTION(swow)
  */
 PHP_MSHUTDOWN_FUNCTION(swow)
 {
+    int ret = SUCCESS;
+
     if (!SWOW_G(ini.enable)) {
-        return SUCCESS;
+        goto end;
     }
 
     static const swow_shutdown_function_t mshutdown_functions[] = {
@@ -282,7 +279,7 @@ PHP_MSHUTDOWN_FUNCTION(swow)
 
     for (size_t i = 0; i < CAT_ARRAY_SIZE(mshutdown_functions); i++) {
         if (mshutdown_functions[i](SHUTDOWN_FUNC_ARGS_PASSTHRU) != SUCCESS) {
-            return FAILURE;
+            ret = FAILURE;
         }
     }
 
@@ -296,7 +293,9 @@ PHP_MSHUTDOWN_FUNCTION(swow)
 
     swow_wrapper_shutdown();
 
-    return SUCCESS;
+end:
+	UNREGISTER_INI_ENTRIES();
+    return ret;
 }
 /* }}} */
 
