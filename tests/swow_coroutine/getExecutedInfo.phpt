@@ -73,7 +73,7 @@ echo "Done\n";
 string(19) "TestGetExecutedInfo"
 
 #0 %sgetExecutedInfo.php(%d): Swow\Coroutine->getTraceAsString()
-#1 %sgetExecutedInfo.inc(%d): {closure}('TestGetExecuted...')
+#1 %sgetExecutedInfo.inc(%d): {closur%s}('TestGetExecuted...')
 #2 %sgetExecutedInfo.php(%d): require('%s...')
 #3 %sgetExecutedInfo.php(%d): TestGetExecutedInfoFunctions::c()
 #4 %sgetExecutedInfo.php(%d): TestGetExecutedInfoFunctions::b()

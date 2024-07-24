@@ -87,14 +87,14 @@ var_dump(buildTraceAsString(debug_backtrace()));
 echo "Done\n";
 ?>
 --EXPECTF--
-string(%d) "#0 [internal function]: {closure}(%s)
+string(%d) "#0 [internal function]: {closur%s}(%s)
 #1 %sbuildTraceAsString.php(%d): Swow\Debug\buildTraceAsString(Array)
 #2 %s(%d): {closur%s}()
 #3 %sbuildTraceAsString.php(%d): Assert::throws(Object(Closure), 'MyWarningExcept...')
 #4 {main}"
 string(%d) "#0 [internal function]: A->generator()
 #1 %sbuildTraceAsString.php(%d): Generator->next()
-#2 [internal function]: A::{closure}(-1)
+#2 [internal function]: A::{closur%s}(-1)
 #3 %sbuildTraceAsString.php(%d): array_map(Object(Closure), Array)
 #4 %sbuildTraceAsString.php(%d): A::callStatic(Object(Closure))
 #5 %sbuildTraceAsString.php(%d): {closur%s}()
@@ -103,7 +103,7 @@ string(%d) "#0 %sbuildTraceAsString.php(%d): {closur%s}()
 #1 %sbuildTraceAsString.php(%d): call(Object(Closure))
 #2 %sbuildTraceAsString.php(%d): A->__invoke()
 #3 %sbuildTraceAsString.php(%d): A->call()
-#4 [internal function]: A::{closure}(-1)
+#4 [internal function]: A::{closur%s}(-1)
 #5 %sbuildTraceAsString.php(%d): array_map(Object(Closure), Array)
 #6 %sbuildTraceAsString.php(%d): A::callStatic(Object(Closure))
 #7 %sbuildTraceAsString.php(%d): {closur%s}()
