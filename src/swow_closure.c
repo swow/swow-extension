@@ -172,6 +172,116 @@ static void swow_closure_ast_callback(zend_ast *ast, void *context_ptr)
     return;
 }
 
+// FIXME: this is fragile since php 8.4, should use another way (instant from ast) to determine namespace
+static const char *swow_function_get_namespace_name(const zend_function *function, size_t *length)
+{
+    const char *anchor;
+    const char *name;
+    size_t name_len;
+
+    // printf("name: %s\n", ZSTR_VAL(function->common.function_name));
+    // printf("scope: %s\n", function->common.scope ? ZSTR_VAL(function->common.scope->name) : NULL);
+
+    // if have scope, use namespace from scope
+    if (function->common.scope) {
+        name = ZSTR_VAL(function->common.scope->name);
+        name_len = ZSTR_LEN(function->common.scope->name);
+        anchor = (const char *) zend_memrchr(name, '\\', name_len);
+        if (anchor > name) {
+            *length = anchor - name;
+            // printf("namespace by scope: %.*s\n", (int)*length, name);
+            return name;
+        }
+    }
+
+    // otherwise, from name
+    name = ZSTR_VAL(function->common.function_name);
+    name_len = ZSTR_LEN(function->common.function_name);
+
+#if PHP_VERSION_ID >= 80400
+    // since php 8.4, closure now have namespaces in their name
+    // php/php-src@08b2ab22f4d3f26345e34d8fad9185f349dac43a
+    // "{closure:{closure:NamespaceA\functionA():6}:7}"
+    // "{closure:NamespaceA\ClassA::methodA():16}"
+    // "{closure:/path/to/some.php:1}"
+    // "{closure:C:\path\to\some\php:16}"
+    // "{closure:\\?\C:\path\to\some\php:16}"
+    // "{closure:\\NETWORKHOST\path\to\some\php:16}"
+    // "{closure:C:\xx\xx\xx\x():16}" C:\xx\xx\xx\x() is a file name
+    // "{closure:\\xx\xx\xx\x():16}"
+    // XXX if closure is namespaced, but as a variable,
+    //     no information can be used for determine namespace
+    // closure := "{closure:" name ":" line "}"
+    // name := function_name | file_name | closure
+    // function_name := ( namespace "\" )* class_name "::" method_name "()"
+    // file_name := FILENAME
+    // class_name := IDENT
+    // method_name := IDENT
+    // line := INTEGER
+
+    // find last '{'
+    anchor = (const char *) zend_memrchr(name, '{', name_len);
+    if (anchor) {
+        // find first ":" after anchor
+        anchor = (const char *) memchr(anchor, ':', name_len - (anchor - name));
+        if (anchor) {
+            name_len -= anchor - name + 1;
+            name = anchor + 1;
+        }
+    }
+    // after above progress
+    // "NamespaceA\functionA():6}:7}"
+    // "\\?\C:\path\to\some\php:1}:2}"
+    // "C:\path\to\some\php:1}:2}"
+    // "AA:\path\to\some\php:1}:2}"
+    // "\\HOST\path\to\some\php:1}:2}"
+
+    // printf("name: %.*s\n", (int)name_len, name);
+    // find first '}'
+    anchor = (const char *) memchr(name, '}', name_len);
+    if (anchor) {
+        // find last ":"
+        anchor = (const char *) zend_memrchr(name, ':', anchor - name);
+        if (anchor) {
+            name_len = anchor - name;
+        }
+    }
+
+    // after above progress
+    // "NamespaceA\functionA()"
+    // "\\?\C:\path\to\some\php"
+    // "C:\path\to\some\php"
+    // "AA:\path\to\some\php"
+    // "\\HOST\path\to\some\php"
+
+    // printf("name: %.*s\n", (int)name_len, name);
+    if (memchr(name, ':', name_len)) {
+        // if it contains ':', it is a path, we can't determine namespace
+        // printf("path name: %.*s\n", (int)name_len, name);
+        *length = 0;
+        return NULL;
+    }
+    if (memcmp(name, "\\\\", name_len > 2 ? 2 : name_len) == 0) {
+        // if it starts with "\\", it is a UNC path, we can't determine namespace
+        // printf("path name: %.*s\n", (int)name_len, name);
+        *length = 0;
+        return NULL;
+    }
+
+    // after above progress
+    // "NamespaceA\functionA()"
+#endif
+    // before, always "Namespace\FQDN\To\{closure}"
+    anchor = (const char *) zend_memrchr(name, '\\', name_len);
+    if (anchor && anchor > name) {
+        *length = anchor - name;
+        // printf("namespace by name: %.*s\n", (int)*length, name);
+        return name;
+    }
+    *length = 0;
+    return NULL;
+}
+
 SWOW_API SWOW_MAY_THROW HashTable *swow_serialize_user_anonymous_function(zend_function *function)
 {
     zend_string *filename = function->op_array.filename;

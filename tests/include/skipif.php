@@ -27,10 +27,10 @@ function skip_if(bool $condition, string $reason): void
     }
 }
 
-function skip_if_php_version_lower_than($require_version = '7.0'): void
+function needs_php_version($cmp, $require_version): void
 {
-    if (version_compare(PHP_VERSION, $require_version, '<')) {
-        skip('need php version >= ' . $require_version);
+    if (!version_compare(PHP_VERSION, $require_version, $cmp)) {
+        skip("needs php version {$cmp} {$require_version}, now: " . PHP_VERSION);
     }
 }
 
