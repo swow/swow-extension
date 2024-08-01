@@ -1,5 +1,7 @@
 <?php
+
 // from php-src ext/openssl/tests/CertificateGenerator.inc
+
 class CertificateGenerator
 {
     const CONFIG = __DIR__. DIRECTORY_SEPARATOR . 'openssl.cnf';

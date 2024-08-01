@@ -3,7 +3,7 @@ swow_stream: stream_socket_server with file:// stream
 --SKIPIF--
 <?php
 require __DIR__ . '/../include/skipif.php';
-skip_if(!extension_loaded("openssl"), "openssl extension is required");
+skip_if(!extension_loaded('openssl'), 'openssl extension is required');
 skip_if(!Swow\Extension::isBuiltWith('openssl'), 'extension must be built with ssl');
 ?>
 --FILE--
@@ -23,8 +23,8 @@ $certificateGenerator->saveNewCertAsFileWithKey('stream_socket_server', $certFil
 $wg = new WaitGroup();
 $wg->add();
 
-Coroutine::run(function () use ($wg, $certFile) {
-    $serverUri = "ssl://0.0.0.0:12346";
+Coroutine::run(static function () use ($wg, $certFile): void {
+    $serverUri = 'ssl://0.0.0.0:12346';
     $serverFlags = STREAM_SERVER_BIND | STREAM_SERVER_LISTEN;
     $serverCtx = stream_context_create(['ssl' => [
         'local_cert' => $certFile,
@@ -42,10 +42,10 @@ Coroutine::run(function () use ($wg, $certFile) {
 
 $wg->wait();
 $context = stream_context_create(['ssl' => [
-    'cafile' => "file://$cacertFile",
+    'cafile' => "file://{$cacertFile}",
     'peer_name' => 'stream_socket_server',
 ]]);
-$ret = file_get_contents("https://localhost:12346", context: $context);
+$ret = file_get_contents('https://localhost:12346', context: $context);
 var_dump($ret);
 
 echo 'Done' . PHP_EOL;
