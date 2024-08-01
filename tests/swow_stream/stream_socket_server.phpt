@@ -9,7 +9,6 @@ skip_if(!Swow\Extension::isBuiltWith('openssl'), 'extension must be built with s
 --FILE--
 <?php
 require_once __DIR__ . '/../include/bootstrap.php';
-require_once __DIR__ . '/tlshello.inc';
 
 use Swow\Coroutine;
 use Swow\Sync\WaitGroup;
