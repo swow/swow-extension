@@ -13,12 +13,18 @@ require __DIR__ . '/../include/bootstrap.php';
 use Swow\Coroutine;
 use Swow\Sync\WaitReference;
 
+$certFile = __DIR__ . DIRECTORY_SEPARATOR . 'ssl_alpn.pem.tmp';
+$cacertFile = __DIR__ . DIRECTORY_SEPARATOR . 'ssl_alpn-ca.pem.tmp';
+
+$certificateGenerator = new CertificateGenerator();
+$certificateGenerator->saveCaCert($cacertFile);
+$certificateGenerator->saveNewCertAsFileWithKey('ssl_alpn', $certFile);
+
 $socket = new Swow\Socket(Swow\Socket::TYPE_TCP);
 $server = stream_socket_server('tls://127.0.0.1:0', context: stream_context_create([
     'ssl' => [
         'alpn_protocols' => 'h2,http/1.1',
-        'local_cert' => __DIR__ . '/../include/ssl/server.crt',
-        'local_pk' => __DIR__ . '/../include/ssl/server.key',
+        'local_cert' => $certFile,
     ],
 ]));
 $wr = new WaitReference();
