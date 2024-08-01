@@ -96,37 +96,37 @@ static zend_always_inline void  swow_unregister_constant_if_exists(const char *n
 SWOW_API void swow_register_null_constant_force(const char *name, size_t name_len, int flags, int module_number)
 {
     swow_unregister_constant_if_exists(name, name_len);
-    return zend_register_null_constant(name, name_len, flags, module_number);
+    zend_register_null_constant(name, name_len, flags, module_number);
 }
 
 SWOW_API void swow_register_bool_constant_force(const char *name, size_t name_len, zend_bool bval, int flags, int module_number)
 {
     swow_unregister_constant_if_exists(name, name_len);
-    return zend_register_bool_constant(name, name_len, bval, flags, module_number);
+    zend_register_bool_constant(name, name_len, bval, flags, module_number);
 }
 
 SWOW_API void swow_register_long_constant_force(const char *name, size_t name_len, zend_long lval, int flags, int module_number)
 {
     swow_unregister_constant_if_exists(name, name_len);
-    return zend_register_long_constant(name, name_len, lval, flags, module_number);
+    zend_register_long_constant(name, name_len, lval, flags, module_number);
 }
 
 SWOW_API void swow_register_double_constant_force(const char *name, size_t name_len, double dval, int flags, int module_number)
 {
     swow_unregister_constant_if_exists(name, name_len);
-    return zend_register_double_constant(name, name_len, dval, flags, module_number);
+    zend_register_double_constant(name, name_len, dval, flags, module_number);
 }
 
 SWOW_API void swow_register_string_constant_force(const char *name, size_t name_len, const char *strval, int flags, int module_number)
 {
     swow_unregister_constant_if_exists(name, name_len);
-    return zend_register_string_constant(name, name_len, strval, flags, module_number);
+    zend_register_string_constant(name, name_len, strval, flags, module_number);
 }
 
 SWOW_API void swow_register_stringl_constant_force(const char *name, size_t name_len, const char *strval, size_t strlen, int flags, int module_number)
 {
     swow_unregister_constant_if_exists(name, name_len);
-    return zend_register_stringl_constant(name, name_len, strval, strlen, flags, module_number);
+    zend_register_stringl_constant(name, name_len, strval, strlen, flags, module_number);
 }
 
 /* module cleaner */
