@@ -327,7 +327,7 @@ if test "${PHP_SWOW}" != "no"; then
 
   dnl start declare extension sources
 
-  PHP_NEW_EXTENSION(swow, "swow.c", $ext_shared, ,\\$(SWOW_CFLAGS))
+  PHP_NEW_EXTENSION(swow, "swow.c", $ext_shared, ,[\$(SWOW_CFLAGS)])
 
   dnl for git version number in swow.c
   AC_PATH_PROG(SWOW_GIT, git, no)
