@@ -59,6 +59,7 @@
 # endif
 #endif
 #endif // PHP_VERSION_ID
+// diff since php/php-src@6728c1bd72f2ddb46528a0c61ac833b1036a12a2
 #if PHP_VERSION_ID < 80100
 #define swow_pdo_txn_bool int
 #else
@@ -160,7 +161,12 @@ static void _pdo_pgsql_notice(void *context, const char *message) /* {{{ */
 /* }}} */
 #endif // PHP_VERSION_ID
 
-static void swow_pdo_pgsql_fetch_error_func(pdo_dbh_t *dbh, pdo_stmt_t *stmt, zval *info) /* {{{ */
+// diff since php/php-src@53ba72ec03b05800de94c3e4f3f8c96aae70185d
+#if PHP_VERSION_ID < 80100
+static int pdo_pgsql_fetch_error_func(pdo_dbh_t *dbh, pdo_stmt_t *stmt, zval *info) /* {{{ */
+#else
+static void pdo_pgsql_fetch_error_func(pdo_dbh_t *dbh, pdo_stmt_t *stmt, zval *info) /* {{{ */
+#endif // PHP_VERSION_ID
 {
 	pdo_pgsql_db_handle *H = (pdo_pgsql_db_handle *)dbh->driver_data;
 	pdo_pgsql_error_info *einfo = &H->einfo;
@@ -724,14 +730,14 @@ static swow_pdo_txn_bool pdo_pgsql_transaction_cmd(const char *cmd, pdo_dbh_t *d
 	return ret;
 }
 
-static bool pgsql_handle_begin(pdo_dbh_t *dbh)
+static swow_pdo_txn_bool pgsql_handle_begin(pdo_dbh_t *dbh)
 {
 	return pdo_pgsql_transaction_cmd("BEGIN", dbh);
 }
 
 static swow_pdo_txn_bool pgsql_handle_commit(pdo_dbh_t *dbh)
 {
-	bool ret = pdo_pgsql_transaction_cmd("COMMIT", dbh);
+	swow_pdo_txn_bool ret = pdo_pgsql_transaction_cmd("COMMIT", dbh);
 
 	/* When deferred constraints are used the commit could
 	   fail, and a ROLLBACK implicitly ran. See bug #67462 */
@@ -744,7 +750,7 @@ static swow_pdo_txn_bool pgsql_handle_commit(pdo_dbh_t *dbh)
 	return ret;
 }
 
-static bool pgsql_handle_rollback(pdo_dbh_t *dbh)
+static swow_pdo_txn_bool pgsql_handle_rollback(pdo_dbh_t *dbh)
 {
 	int ret = pdo_pgsql_transaction_cmd("ROLLBACK", dbh);
 
@@ -1487,13 +1493,17 @@ static const struct pdo_dbh_methods pgsql_methods = {
 	pgsql_handle_rollback,
 	pdo_pgsql_set_attr,
 	pdo_pgsql_last_insert_id,
-	swow_pdo_pgsql_fetch_error_func,
+	pdo_pgsql_fetch_error_func,
 	pdo_pgsql_get_attribute,
 	pdo_pgsql_check_liveness,	/* check_liveness */
 	pdo_pgsql_get_driver_methods,  /* get_driver_methods */
 	NULL,
-	pgsql_handle_in_transaction,
-	NULL /* get_gc */
+	pgsql_handle_in_transaction
+// diff since php/php-src@e735de6eae4a60fb55fac6fc99b6b63f525c4b4b
+#if PHP_VERSION_ID > 80400
+	, NULL /* get_gc */
+#endif // PHP_VERSION_ID
+// diff since php/php-src@715b9aaa09e1ad76a94f32b17da7927592fdae0a
 #if PHP_VERSION_ID > 80400
 	, swow_pdo_pgsql_scanner /* scanner, not an exported symbol */
 #endif // PHP_VERSION_ID
