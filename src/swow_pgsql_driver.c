@@ -42,6 +42,24 @@
 #define ZEND_ME(classname, name, arg_info, flags) ZEND_RAW_FENTRY(#name, swow_zim_##classname##_##name, arg_info, flags, NULL, NULL)
 #endif
 #if PHP_VERSION_ID < 80100
+// diff since php/php-src@efbb2198d4e5a01167d1a8c2937b848f75ac4d19
+#undef ZEND_ATOL
+// from Zend/zend_long.h
+#ifdef ZEND_ENABLE_ZVAL_LONG64
+# ifdef ZEND_WIN32
+#  define ZEND_ATOL(s) _atoi64((s))
+# else
+#  define ZEND_ATOL(s) atoll((s))
+# endif
+#else
+# ifdef ZEND_WIN32
+#  define ZEND_ATOL(s) atol((s))
+# else
+#  define ZEND_ATOL(s) atol((s))
+# endif
+#endif
+#endif // PHP_VERSION_ID
+#if PHP_VERSION_ID < 80100
 #define swow_pdo_txn_bool int
 #else
 #define swow_pdo_txn_bool bool
@@ -291,13 +309,24 @@ static void pgsql_handle_closer(pdo_dbh_t *dbh) /* {{{ */
 }
 /* }}} */
 
+// diff since php/php-src@2d51c203f09551323ed595514e03ab206fd93129
+#if PHP_VERSION_ID < 80100
+static int pgsql_handle_preparer(pdo_dbh_t *dbh, const char *sql, size_t sql_len, pdo_stmt_t *stmt, zval *driver_options)
+#else
 static bool pgsql_handle_preparer(pdo_dbh_t *dbh, zend_string *sql, pdo_stmt_t *stmt, zval *driver_options)
+#endif // PHP_VERSION_ID
 {
 	pdo_pgsql_db_handle *H = (pdo_pgsql_db_handle *)dbh->driver_data;
 	pdo_pgsql_stmt *S = ecalloc(1, sizeof(pdo_pgsql_stmt));
 	int scrollable;
 	int ret;
+// diff since php/php-src@2d51c203f09551323ed595514e03ab206fd93129
+#if PHP_VERSION_ID < 80100
+	char *nsql = NULL;
+	size_t nsql_len = 0;
+#else
 	zend_string *nsql = NULL;
+#endif // PHP_VERSION_ID
 	int emulate = 0;
 	int execute_only = 0;
 
@@ -335,7 +364,12 @@ static bool pgsql_handle_preparer(pdo_dbh_t *dbh, zend_string *sql, pdo_stmt_t *
 		stmt->named_rewrite_template = "$%d";
 	}
 
+// diff since php/php-src@2d51c203f09551323ed595514e03ab206fd93129
+#if PHP_VERSION_ID < 80100
+	ret = pdo_parse_params(stmt, (char*)sql, sql_len, &nsql, &nsql_len);
+#else
 	ret = pdo_parse_params(stmt, sql, &nsql);
+#endif // PHP_VERSION_ID
 
 	if (ret == -1) {
 		/* couldn't grok it */
@@ -345,7 +379,12 @@ static bool pgsql_handle_preparer(pdo_dbh_t *dbh, zend_string *sql, pdo_stmt_t *
 		/* query was re-written */
 		S->query = nsql;
 	} else {
+// diff since php/php-src@2d51c203f09551323ed595514e03ab206fd93129
+#if PHP_VERSION_ID < 80100
+		S->query = estrdup(sql);
+#else
 		S->query = zend_string_copy(sql);
+#endif // PHP_VERSION_ID
 	}
 
 	if (!emulate && !execute_only) {
@@ -476,7 +515,11 @@ static zend_string *pdo_pgsql_last_insert_id(pdo_dbh_t *dbh, const zend_string *
 #endif // PHP_VERSION_ID
 {
 	pdo_pgsql_db_handle *H = (pdo_pgsql_db_handle *)dbh->driver_data;
+#if PHP_VERSION_ID < 80100
+	char *id = NULL;
+#else
 	zend_string *id = NULL;
+#endif // PHP_VERSION_ID
 	PGresult *res;
 	ExecStatusType status;
 
@@ -484,7 +527,11 @@ static zend_string *pdo_pgsql_last_insert_id(pdo_dbh_t *dbh, const zend_string *
 		res = cat_pq_exec(H->server, "SELECT LASTVAL()");
 	} else {
 		const char *q[1];
+#if PHP_VERSION_ID < 80100
+		q[0] = name;
+#else
 		q[0] = ZSTR_VAL(name);
+#endif // PHP_VERSION_ID
 
 		res = cat_pq_exec_params(H->server, "SELECT CURRVAL($1)", 1, NULL, q, NULL, NULL, 0);
 	}
@@ -719,9 +766,9 @@ void swow_pgsqlCopyFromArray_internal(INTERNAL_FUNCTION_PARAMETERS)
 	if (!zend_hash_num_elements(Z_ARRVAL_P(pg_rows))) {
 		// diff since php/php-src@5853cdb73db85c75d5f558a8cf92161a31291de0
 #if PHP_VERSION_ID < 80400
-		zend_argument_must_not_be_empty_error(2);
-#else
 		zend_argument_value_error(2, "cannot be empty");
+#else
+		zend_argument_must_not_be_empty_error(2);
 #endif // PHP_VERSION_ID
 		RETURN_THROWS();
 	}
@@ -1381,22 +1428,33 @@ static const zend_function_entry *pdo_pgsql_get_driver_methods(pdo_dbh_t *dbh, i
 	}
 }
 
-static bool pdo_pgsql_set_attr(pdo_dbh_t *dbh, zend_long attr, zval *val)
+static swow_pdo_txn_bool pdo_pgsql_set_attr(pdo_dbh_t *dbh, zend_long attr, zval *val)
 {
+// diff since php/php-src@ebaeb93c3f9f23aa9b2e5ccc1f8bf17ec3700bf2
+#if PHP_VERSION_ID < 80100
+	zend_bool bval = zval_get_long(val)? 1 : 0;
+#else
 	bool bval;
+#endif // PHP_VERSION_ID
 	pdo_pgsql_db_handle *H = (pdo_pgsql_db_handle *)dbh->driver_data;
 
 	switch (attr) {
 		case PDO_ATTR_EMULATE_PREPARES:
+// diff since php/php-src@ebaeb93c3f9f23aa9b2e5ccc1f8bf17ec3700bf2
+#if PHP_VERSION_ID >= 80100
 			if (!pdo_get_bool_param(&bval, val)) {
 				return false;
 			}
+#endif // PHP_VERSION_ID
 			H->emulate_prepares = bval;
 			return true;
 		case PDO_PGSQL_ATTR_DISABLE_PREPARES:
+// diff since php/php-src@ebaeb93c3f9f23aa9b2e5ccc1f8bf17ec3700bf2
+#if PHP_VERSION_ID >= 80100
 			if (!pdo_get_bool_param(&bval, val)) {
 				return false;
 			}
+#endif // PHP_VERSION_ID
 			H->disable_prepares = bval;
 			return true;
 		default:
@@ -1494,7 +1552,7 @@ static int pdo_pgsql_handle_factory(pdo_dbh_t *dbh, zval *driver_options) /* {{{
 		goto cleanup;
 	}
 
-	PQsetNoticeProcessor(H->server, _pdo_pgsql_notice, (void *)dbh);
+	PQsetNoticeProcessor(H->server, (void(*)(void*,const char*))_pdo_pgsql_notice, (void *)dbh);
 
 	H->attached = 1;
 	H->pgoid = -1;
