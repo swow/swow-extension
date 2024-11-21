@@ -284,7 +284,12 @@ void swow_pdo_pgsql_close_lob_streams(pdo_dbh_t *dbh)
 	}
 }
 
+// diff since php/php-src@53ba72ec03b05800de94c3e4f3f8c96aae70185d
+#if PHP_VERSION_ID < 80100
+static int pgsql_handle_closer(pdo_dbh_t *dbh) /* {{{ */
+#else
 static void pgsql_handle_closer(pdo_dbh_t *dbh) /* {{{ */
+#endif // PHP_VERSION_ID
 {
 	pdo_pgsql_db_handle *H = (pdo_pgsql_db_handle *)dbh->driver_data;
 	if (H) {
@@ -294,7 +299,10 @@ static void pgsql_handle_closer(pdo_dbh_t *dbh) /* {{{ */
 			pefree(H->lob_streams, dbh->is_persistent);
 			H->lob_streams = NULL;
 		}
+// diff since php/php-src@a9259c04969eefabf4c66a8843a66d0bee1c56c0
+#if PHP_VERSION_ID >= 80400
 		swow_pdo_pgsql_cleanup_notice_callback(H);
+#endif // PHP_VERSION_ID
 		if (H->server) {
 			PQfinish(H->server);
 			H->server = NULL;
@@ -306,6 +314,10 @@ static void pgsql_handle_closer(pdo_dbh_t *dbh) /* {{{ */
 		pefree(H, dbh->is_persistent);
 		dbh->driver_data = NULL;
 	}
+// diff since php/php-src@53ba72ec03b05800de94c3e4f3f8c96aae70185d
+#if PHP_VERSION_ID < 80100
+	return 0;
+#endif // PHP_VERSION_ID
 }
 /* }}} */
 
@@ -1400,7 +1412,10 @@ PHP_METHOD(PDO_PGSql_Ext, pgsqlSetNoticeCallback)
 
 	pdo_pgsql_db_handle *H = (pdo_pgsql_db_handle *)dbh->driver_data;
 
+// diff since php/php-src@a9259c04969eefabf4c66a8843a66d0bee1c56c0
+#if PHP_VERSION_ID >= 80400
 	swow_pdo_pgsql_cleanup_notice_callback(H);
+#endif //PHP_VERSION_ID
 
 	if (ZEND_FCC_INITIALIZED(fcc)) {
 		H->notice_callback = emalloc(sizeof(zend_fcall_info_cache));

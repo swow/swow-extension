@@ -145,7 +145,10 @@ enum pdo_pgsql_specific_constants {
 php_stream *swow_pdo_pgsql_create_lob_stream(zval *pdh, int lfd, Oid oid);
 extern const php_stream_ops swow_pdo_pgsql_lob_stream_ops;
 
+// diff since php/php-src@a9259c04969eefabf4c66a8843a66d0bee1c56c0
+#if PHP_VERSION_ID >= 80400
 void swow_pdo_pgsql_cleanup_notice_callback(pdo_pgsql_db_handle *H);
+#endif //PHP_VERSION_ID
 
 void swow_pdo_libpq_version(char *buf, size_t len);
 void swow_pdo_pgsql_close_lob_streams(pdo_dbh_t *dbh);

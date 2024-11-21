@@ -50,8 +50,6 @@
 #  define ZEND_ATOL(s) atol((s))
 # endif
 #endif
-// diff since php/php-src@422d1665a2a744421b5911cbe8541370509bc4f5
-#define convert_to_string convert_to_string_ex
 #endif // PHP_VERSION_ID < 80100
 
 /* from postgresql/src/include/catalog/pg_type.h */
@@ -466,7 +464,12 @@ static int pgsql_stmt_param_hook(pdo_stmt_t *stmt, struct pdo_bound_param_data *
 						S->param_lengths[param->paramno] = 1;
 						S->param_formats[param->paramno] = 0;
 					} else {
+// diff since php/php-src@422d1665a2a744421b5911cbe8541370509bc4f5
+#if PHP_VERSION_ID < 80100
+						convert_to_string_ex(parameter);
+#else
 						convert_to_string(parameter);
+#endif // PHP_VERSION_ID < 80100
 						S->param_values[param->paramno] = Z_STRVAL_P(parameter);
 						S->param_lengths[param->paramno] = Z_STRLEN_P(parameter);
 						S->param_formats[param->paramno] = 0;
@@ -633,7 +636,7 @@ static int pgsql_stmt_get_col(pdo_stmt_t *stmt, int colno, char **ptr, size_t *l
 		switch (cols[colno].param_type) {
 
 			case PDO_PARAM_INT:
-				ZEND_ATOL(S->cols[colno].intval, *ptr);
+				S->cols[colno].intval = ZEND_ATOL(*ptr);
 				*ptr = (char *) &(S->cols[colno].intval);
 				*len = sizeof(zend_long);
 				break;
@@ -651,7 +654,7 @@ static int pgsql_stmt_get_col(pdo_stmt_t *stmt, int colno, char **ptr, size_t *l
 					Oid oid = (Oid)strtoul(*ptr, &end_ptr, 10);
 					int loid = lo_open(S->H->server, oid, INV_READ);
 					if (loid >= 0) {
-						*ptr = (char*)pdo_pgsql_create_lob_stream(&stmt->database_object_handle, loid, oid);
+						*ptr = (char*)swow_pdo_pgsql_create_lob_stream(&stmt->database_object_handle, loid, oid);
 						*len = 0;
 						return *ptr ? 1 : 0;
 					}
