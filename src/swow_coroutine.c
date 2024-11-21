@@ -2458,6 +2458,7 @@ static int swow_coroutine_catch_handler(zend_execute_data *execute_data)
 
 /* hook exit */
 
+#ifdef ZEND_EXIT
 static int swow_coroutine_exit_handler(zend_execute_data *execute_data)
 {
     SWOW_COROUTINE_OPCODE_HANDLER_CHECK();
@@ -2508,6 +2509,7 @@ static int swow_coroutine_exit_handler(zend_execute_data *execute_data)
 
     return ZEND_USER_OPCODE_CONTINUE;
 }
+#endif // ZEND_EXIT
 
 /* hook silence */
 
@@ -2676,8 +2678,10 @@ zend_result swow_coroutine_module_init(INIT_FUNC_ARGS)
     memset(&swow_coroutine_internal_function, 0, sizeof(swow_coroutine_internal_function));
     swow_coroutine_internal_function.common.type = ZEND_INTERNAL_FUNCTION;
 
+# ifdef ZEND_EXIT
     /* hook opcode exit */
     zend_set_user_opcode_handler(ZEND_EXIT, swow_coroutine_exit_handler);
+# endif // ZEND_EXIT
 # ifdef SWOW_COROUTINE_SWAP_SILENCE_CONTEXT
     /* hook opcode silence */
     zend_set_user_opcode_handler(ZEND_BEGIN_SILENCE, swow_coroutine_begin_silence_handler);
