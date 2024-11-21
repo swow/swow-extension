@@ -812,6 +812,9 @@ EOF
           SWOW_INCLUDES="$SWOW_INCLUDES -I$pdo_cv_inc_path"
           SWOW_ADD_SOURCES(deps/libcat/src, cat_pq.c, SWOW_CAT_INCLUDES, SWOW_CAT_CFLAGS)
           SWOW_ADD_SOURCES(src, swow_pgsql_driver.c swow_pgsql_statement.c swow_pgsql_version.c, SWOW_INCLUDES, SWOW_CFLAGS)
+          if test "${SWOW_PHP_VERSION_ID}" -ge "80400"; then
+            SWOW_ADD_SOURCES(src, swow_pgsql_sql_parser.c, SWOW_INCLUDES, SWOW_CFLAGS)
+          fi
         ],[
           AC_MSG_WARN([Swow PDO_PGSQL support not enabled: libpq not found])
         ])
