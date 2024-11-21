@@ -380,7 +380,7 @@ static int pgsql_stmt_param_hook(pdo_stmt_t *stmt, struct pdo_bound_param_data *
 					pdo_pgsql_error_stmt_msg(stmt, 0, "HY093", "parameter was not defined");
 					return 0;
 				}
-				ZEND_FALLTHROUGH;
+				CAT_FALLTHROUGH;
 			case PDO_PARAM_EVT_EXEC_POST:
 			case PDO_PARAM_EVT_FETCH_PRE:
 			case PDO_PARAM_EVT_FETCH_POST:
@@ -946,7 +946,7 @@ if (swow_PQresultMemorySize) {
 			}
 			return 1;
 }
-		/* fallthrough */
+		CAT_FALLTHROUGH
 		default:
 			(void)S;
 			return 0;
