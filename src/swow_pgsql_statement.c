@@ -946,7 +946,7 @@ if (swow_PQresultMemorySize) {
 			}
 			return 1;
 }
-		CAT_FALLTHROUGH
+		CAT_FALLTHROUGH;
 		default:
 			(void)S;
 			return 0;
